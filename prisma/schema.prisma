@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +10,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ---------------------------------------------------------------------------
+// E-Commerce Sales schema (mirrors global_ecommerce_sales.csv)
+// ---------------------------------------------------------------------------
+
+model Order {
+  id              String   @id // e.g. ORD-250001 (human-readable)
+  orderDate       DateTime
+  customerName    String
+  customerSegment String   // Consumer | Corporate | Home Office
+  country         String
+  region          String
+  productCategory String   // Electronics | Clothing | Home & Kitchen | Books
+  productName     String
+  quantity        Int
+  unitPrice       Float
+  discountPercent Float
+  shippingCost    Float
+  totalSales      Float
+  profit          Float
+  paymentMethod   String   // Credit Card | PayPal | Bank Transfer | Debit Card
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orderDate])
+  @@index([region])
+  @@index([productCategory])
+  @@index([customerSegment])
+  @@index([country])
+}
+
+// Keep the original sample models so existing examples still build.
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
