@@ -1,0 +1,819 @@
+     1→Here is the **complete, full backend codebase** with all files, models, business domain logic, analytics algorithms, seeding scripts, and REST endpoints.
+     2→
+     3→---
+     4→
+     5→### Table of Contents
+     6→
+     7→1. [Database Schema — `prisma/schema.prisma`](#1-prismaschemaprisma--database-schema)
+     8→2. [Environment Configuration — `.env`](#2-env--environment-variables)
+     9→3. [Prisma Client Singleton — `src/lib/db.ts`](#3-srclibdbts--prisma-client-singleton)
+    10→4. [Domain Constants & Data Models — `src/lib/ecommerce-domain.ts`](#4-srclibecommerce-domaints--domain-constants--definitions)
+    11→5. [Analytics Computation Engine — `src/lib/analytics.ts`](#5-srclibanalyticsts--aggregation--analytics-engine)
+    12→6. [Synthetic Seeder Script — `scripts/seed-orders.ts`](#6-scriptsseed-ordersts--synthetic-data-seeder)
+    13→7. [Analytics Endpoint — `src/app/api/analytics/route.ts`](#7-srcappapianalyticsroutets--analytics-endpoint)
+    14→8. [Orders CRUD Collection — `src/app/api/orders/route.ts`](#8-srcappapiordersroutets--orders-list--create-endpoint)
+    15→9. [Single Order Detail/Update/Delete — `src/app/api/orders/[id]/route.ts`](#9-srcappapiordersidroutets--single-order-item-endpoint)
+    16→10. [Health Probe — `src/app/api/health/route.ts`](#10-srcappapihealthroutets--system-health-check)
+    17→
+    18→---
+    19→
+    20→### 1. [`prisma/schema.prisma`](file:///c:/Users/manga/Downloads/archive/prisma/schema.prisma) — Database Schema
+    21→
+    22→```prisma
+    23→generator client {
+    24→  provider = "prisma-client-js"
+    25→}
+    26→
+    27→datasource db {
+    28→  provider = "sqlite"
+    29→  url      = env("DATABASE_URL")
+    30→}
+    31→
+    32→// E-Commerce Sales schema (mirrors global_ecommerce_sales.csv)
+    33→model Order {
+    34→  id              String   @id
+    35→  orderDate       DateTime
+    36→  customerName    String
+    37→  customerSegment String   // Consumer | Corporate | Home Office
+    38→  country         String
+    39→  region          String
+    40→  productCategory String   // Electronics | Clothing | Home & Kitchen | Books
+    41→  productName     String
+    42→  quantity        Int
+    43→  unitPrice       Float
+    44→  discountPercent Float
+    45→  shippingCost    Float
+    46→  totalSales      Float
+    47→  profit          Float
+    48→  paymentMethod   String   // Credit Card | PayPal | Bank Transfer | Debit Card
+    49→  createdAt       DateTime @default(now())
+    50→  updatedAt       DateTime @updatedAt
+    51→
+    52→  @@index([orderDate])
+    53→  @@index([region])
+    54→  @@index([productCategory])
+    55→  @@index([customerSegment])
+    56→  @@index([country])
+    57→}
+    58→```
+    59→
+    60→---
+    61→
+    62→### 2. [`.env`](file:///c:/Users/manga/Downloads/archive/.env) — Environment Variables
+    63→
+    64→```env
+    65→# Database connection string (SQLite)
+    66→DATABASE_URL="file:./db/custom.db"
+    67→```
+    68→
+    69→---
+    70→
+    71→### 3. [`src/lib/db.ts`](file:///c:/Users/manga/Downloads/archive/src/lib/db.ts) — Prisma Client Singleton
+    72→
+    73→```ts
+    74→import { PrismaClient } from '@prisma/client'
+    75→
+    76→const globalForPrisma = globalThis as unknown as {
+    77→  prisma: PrismaClient | undefined
+    78→}
+    79→
+    80→export const db =
+    81→  globalForPrisma.prisma ??
+    82→  new PrismaClient({
+    83→    log: ['query'],
+    84→  })
+    85→
+    86→if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+    87→```
+    88→
+    89→---
+    90→
+    91→### 4. [`src/lib/ecommerce-domain.ts`](file:///c:/Users/manga/Downloads/archive/src/lib/ecommerce-domain.ts) — Domain Constants & Definitions
+    92→
+    93→```ts
+    94→export const REGIONS = [
+    95→  "North America",
+    96→  "Europe",
+    97→  "Asia Pacific",
+    98→  "Latin America",
+    99→  "Middle East & Africa",
+   100→] as const;
+   101→export type Region = (typeof REGIONS)[number];
+   102→
+   103→export const COUNTRIES: Record<Region, string[]> = {
+   104→  "North America": ["United States", "Canada", "Mexico"],
+   105→  "Europe": ["United Kingdom", "Germany", "France", "Spain", "Italy", "Netherlands"],
+   106→  "Asia Pacific": ["China", "Japan", "India", "Australia", "Singapore", "South Korea"],
+   107→  "Latin America": ["Brazil", "Argentina", "Chile"],
+   108→  "Middle East & Africa": ["United Arab Emirates", "Saudi Arabia", "South Africa", "Turkey"],
+   109→};
+   110→
+   111→export const CATEGORIES = ["Electronics", "Clothing", "Home & Kitchen", "Books"] as const;
+   112→export type Category = (typeof CATEGORIES)[number];
+   113→
+   114→export const PRODUCTS: Record<Category, { name: string; price: number }[]> = {
+   115→  Electronics: [
+   116→    { name: "Aurora Wireless Earbuds Pro", price: 199.0 },
+   117→    { name: "Pulse Fitness Tracker X", price: 159.0 },
+   118→    { name: "Vertex Stainless Smartwatch", price: 249.0 },
+   119→    { name: "Echo Bluetooth Speaker", price: 129.0 },
+   120→    { name: "Lumina Smart LED Lamp", price: 89.9 },
+   121→    { name: "Nimbus Tablet 10.4", price: 419.0 },
+   122→    { name: "Horizon 4K Action Camera", price: 329.0 },
+   123→  ],
+   124→  Clothing: [
+   125→    { name: "Summit Trekking Backpack", price: 124.5 },
+   126→    { name: "Vortex Running Shoes", price: 109.0 },
+   127→    { name: "Coastline Linen Shirt", price: 64.0 },
+   128→    { name: "Alpine Down Jacket", price: 289.0 },
+   129→    { name: "Studio Yoga Leggings", price: 59.0 },
+   130→    { name: "Heritage Denim Jacket", price: 139.0 },
+   131→  ],
+   132→  "Home & Kitchen": [
+   133→    { name: "Nimbus Memory Foam Pillow", price: 64.0 },
+   134→    { name: "Cascade Insulated Bottle", price: 39.9 },
+   135→    { name: "Verde Ceramic Cookware Set", price: 219.0 },
+   136→    { name: "Lumen Aroma Diffuser", price: 49.5 },
+   137→    { name: "Olive Wood Cutting Board", price: 34.0 },
+   138→    { name: "Cozy Weighted Blanket", price: 119.0 },
+   139→  ],
+   140→  Books: [
+   141→    { name: "Atomic Habits (Hardcover)", price: 24.0 },
+   142→    { name: "The Pragmatic Programmer", price: 39.99 },
+   143→    { name: "Sapiens: A Brief History", price: 22.5 },
+   144→    { name: "Deep Work", price: 27.0 },
+   145→    { name: "The Lean Startup", price: 26.99 },
+   146→  ],
+   147→};
+   148→
+   149→export const CUSTOMER_SEGMENTS = ["Consumer", "Corporate", "Home Office"] as const;
+   150→export type CustomerSegment = (typeof CUSTOMER_SEGMENTS)[number];
+   151→
+   152→export const PAYMENT_METHODS = ["Credit Card", "PayPal", "Bank Transfer", "Debit Card"] as const;
+   153→export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+   154→
+   155→export const REGION_SHIP_BASE: Record<Region, number> = {
+   156→  "North America": 12.5,
+   157→  Europe: 15.8,
+   158→  "Asia Pacific": 18.4,
+   159→  "Latin America": 22.1,
+   160→  "Middle East & Africa": 28.6,
+   161→};
+   162→
+   163→export const CATEGORY_MARGIN: Record<Category, number> = {
+   164→  Electronics: 0.22,
+   165→  Clothing: 0.42,
+   166→  "Home & Kitchen": 0.34,
+   167→  Books: 0.55,
+   168→};
+   169→
+   170→export const SEGMENT_DISCOUNT: Record<CustomerSegment, [number, number]> = {
+   171→  Consumer: [0, 15],
+   172→  Corporate: [5, 25],
+   173→  "Home Office": [0, 20],
+   174→};
+   175→
+   176→export const MONTH_WEIGHTS = [0.85, 0.8, 0.9, 0.95, 1.0, 1.05, 1.05, 1.0, 1.1, 1.2, 1.45, 1.65];
+   177→
+   178→export const FIRST_NAMES = [
+   179→  "Olivia", "Liam", "Sophia", "Noah", "Emma", "James", "Ava", "Lucas", "Mia", "Ethan",
+   180→  "Isabella", "Mason", "Amelia", "Logan", "Harper", "Evelyn", "Henry", "Abigail",
+   181→  "Jackson", "Emily", "Daniel", "Ella", "Matthew", "Scarlett", "David", "Victoria",
+   182→  "Joseph", "Samuel", "Charlotte", "Nathan",
+   183→];
+   184→
+   185→export const LAST_NAMES = [
+   186→  "Bennett", "Carter", "Nguyen", "Patel", "Rodriguez", "Mitchell", "Thompson", "Hill",
+   187→  "Flores", "Brooks", "Reyes", "Cooper", "Lee", "Walker", "Hall", "Allen", "Young",
+   188→  "King", "Wright", "Lopez", "Scott", "Green", "Adams", "Baker", "Nelson", "Carter",
+   189→  "Roberts", "Turner", "Phillips", "Parker",
+   190→];
+   191→
+   192→export function weightedPick<T>(items: readonly T[], weights: number[]): T {
+   193→  const total = weights.reduce((s, w) => s + w, 0);
+   194→  let r = Math.random() * total;
+   195→  for (let i = 0; i < items.length; i++) {
+   196→    r -= weights[i];
+   197→    if (r <= 0) return items[i];
+   198→  }
+   199→  return items[items.length - 1];
+   200→}
+   201→
+   202→export function makeRng(seed: number) {
+   203→  let t = seed >>> 0;
+   204→  return function () {
+   205→    t = (t + 0x6d2b79f5) | 0;
+   206→    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+   207→    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+   208→    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+   209→  };
+   210→}
+   211→```
+   212→
+   213→---
+   214→
+   215→### 5. [`src/lib/analytics.ts`](file:///c:/Users/manga/Downloads/archive/src/lib/analytics.ts) — Aggregation & Analytics Engine
+   216→
+   217→```ts
+   218→import { db } from "@/lib/db";
+   219→import type { Order } from "@prisma/client";
+   220→
+   221→const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
+   222→const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+   223→const DOW_ORDER = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+   224→
+   225→export type AnalyticsPayload = {
+   226→  kpis: {
+   227→    total_sales: number; total_profit: number; total_orders: number;
+   228→    avg_order_value: number; avg_discount: number; profit_margin: number;
+   229→    total_shipping: number; unique_customers: number; negative_profit_orders: number;
+   230→    yearly: Record<number, { revenue: number; profit: number; orders: number }>;
+   231→  };
+   232→  monthly: { year_month: string; label: string; revenue: number; profit: number; orders: number }[];
+   233→  yoy: { year: number; revenue: number; profit: number; orders: number }[];
+   234→  heatmap: { year: number; quarter: string; revenue: number }[];
+   235→  region: { region: string; revenue: number; profit: number; orders: number; avg_order: number; avg_shipping: number; profit_margin: number }[];
+   236→  country: { country: string; region: string; revenue: number; profit: number; orders: number }[];
+   237→  category: { category: string; revenue: number; profit: number; orders: number; units: number; avg_price: number; avg_discount: number; profit_margin: number }[];
+   238→  top_products: { product: string; category: string; revenue: number; profit: number; units: number; orders: number }[];
+   239→  segment: { segment: string; revenue: number; profit: number; orders: number; avg_order_value: number; avg_discount: number; profit_margin: number }[];
+   240→  segment_category: { segment: string; values: Record<string, number> }[];
+   241→  discount_scatter: { discount: number; profit_margin: number; total_sales: number; category: string; product: string }[];
+   242→  discount_ranges: { range: string; orders: number; avg_revenue: number; avg_profit: number; avg_margin: number }[];
+   243→  payment: { method: string; orders: number; revenue: number; share: number; avg_order: number }[];
+   244→  shipping: { region: string; avg_shipping: number; profit_margin: number }[];
+   245→  correlation: { feature: string; [feature: string]: string | number }[];
+   246→  correlation_features: string[];
+   247→  dow: { day: string; orders: number; avg_revenue: number }[];
+   248→};
+   249→
+   250→const round = (n: number, d = 2) => Math.round(n * 10 ** d) / 10 ** d;
+   251→const fcur = (n: number) => round(n, 2);
+   252→
+   253→function pearson(xs: number[], ys: number[]) {
+   254→  const n = xs.length;
+   255→  if (n === 0) return 0;
+   256→  const mx = xs.reduce((s, x) => s + x, 0) / n;
+   257→  const my = ys.reduce((s, x) => s + x, 0) / n;
+   258→  let num = 0, dx = 0, dy = 0;
+   259→  for (let i = 0; i < n; i++) {
+   260→    const a = xs[i] - mx, b = ys[i] - my;
+   261→    num += a * b; dx += a * a; dy += b * b;
+   262→  }
+   263→  const denom = Math.sqrt(dx) * Math.sqrt(dy);
+   264→  return denom === 0 ? 0 : num / denom;
+   265→}
+   266→
+   267→function discountRange(p: number) {
+   268→  if (p <= 0) return "No Discount";
+   269→  if (p <= 10) return "1-10%";
+   270→  if (p <= 20) return "11-20%";
+   271→  return "21-35%";
+   272→}
+   273→
+   274→export async function getAnalytics(): Promise<AnalyticsPayload> {
+   275→  const orders = await db.order.findMany({ orderBy: { orderDate: "asc" } });
+   276→  return computeAnalytics(orders);
+   277→}
+   278→
+   279→export function computeAnalytics(orders: Order[]): AnalyticsPayload {
+   280→  let totalSales = 0, totalProfit = 0, totalShipping = 0, totalDiscount = 0, negProfit = 0;
+   281→  const customers = new Set<string>();
+   282→  const yearly: Record<number, { revenue: number; profit: number; orders: number }> = {};
+   283→
+   284→  for (const o of orders) {
+   285→    totalSales += o.totalSales;
+   286→    totalProfit += o.profit;
+   287→    totalShipping += o.shippingCost;
+   288→    totalDiscount += o.discountPercent;
+   289→    if (o.profit < 0) negProfit++;
+   290→    customers.add(o.customerName);
+   291→    const y = o.orderDate.getUTCFullYear();
+   292→    if (!yearly[y]) yearly[y] = { revenue: 0, profit: 0, orders: 0 };
+   293→    yearly[y].revenue += o.totalSales;
+   294→    yearly[y].profit += o.profit;
+   295→    yearly[y].orders += 1;
+   296→  }
+   297→  const totalOrders = orders.length;
+   298→
+   299→  const kpis = {
+   300→    total_sales: fcur(totalSales),
+   301→    total_profit: fcur(totalProfit),
+   302→    total_orders: totalOrders,
+   303→    avg_order_value: fcur(totalSales / totalOrders),
+   304→    avg_discount: round(totalDiscount / totalOrders, 2),
+   305→    profit_margin: round((totalProfit / totalSales) * 100, 2),
+   306→    total_shipping: fcur(totalShipping),
+   307→    unique_customers: customers.size,
+   308→    negative_profit_orders: negProfit,
+   309→    yearly: Object.fromEntries(
+   310→      Object.entries(yearly).map(([k, v]) => [Number(k), {
+   311→        revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders,
+   312→      }])
+   313→    ),
+   314→  };
+   315→
+   316→  // Monthly
+   317→  const monthlyMap = new Map<string, { revenue: number; profit: number; orders: number }>();
+   318→  for (const o of orders) {
+   319→    const ym = `${o.orderDate.getUTCFullYear()}-${String(o.orderDate.getUTCMonth() + 1).padStart(2, "0")}`;
+   320→    if (!monthlyMap.has(ym)) monthlyMap.set(ym, { revenue: 0, profit: 0, orders: 0 });
+   321→    const e = monthlyMap.get(ym)!;
+   322→    e.revenue += o.totalSales; e.profit += o.profit; e.orders += 1;
+   323→  }
+   324→  const monthly = Array.from(monthlyMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+   325→    .map(([ym, v]) => {
+   326→      const monthIdx = parseInt(ym.slice(5, 7)) - 1;
+   327→      return { year_month: ym, label: `${MONTH_NAMES[monthIdx]} ${ym.slice(0, 4)}`,
+   328→        revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders };
+   329→    });
+   330→
+   331→  const yoy = Object.entries(yearly).map(([k, v]) => ({
+   332→    year: Number(k), revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders,
+   333→  })).sort((a, b) => a.year - b.year);
+   334→
+   335→  // Quarterly heatmap
+   336→  const quarterlyMap = new Map<string, number>();
+   337→  for (const o of orders) {
+   338→    const y = o.orderDate.getUTCFullYear();
+   339→    const q = Math.floor(o.orderDate.getUTCMonth() / 3) + 1;
+   340→    const k = `${y}-${q}`;
+   341→    quarterlyMap.set(k, (quarterlyMap.get(k) || 0) + o.totalSales);
+   342→  }
+   343→  const years = Array.from(new Set(orders.map((o) => o.orderDate.getUTCFullYear()))).sort();
+   344→  const heatmap = [];
+   345→  for (const y of years) {
+   346→    for (let q = 1; q <= 4; q++) {
+   347→      heatmap.push({ year: y, quarter: `Q${q}`, revenue: fcur(quarterlyMap.get(`${y}-${q}`) || 0) });
+   348→    }
+   349→  }
+   350→
+   351→  // Region
+   352→  const regionMap = new Map<string, { revenue: number; profit: number; orders: number; shipping: number; shipCount: number }>();
+   353→  for (const o of orders) {
+   354→    if (!regionMap.has(o.region)) regionMap.set(o.region, { revenue: 0, profit: 0, orders: 0, shipping: 0, shipCount: 0 });
+   355→    const e = regionMap.get(o.region)!;
+   356→    e.revenue += o.totalSales; e.profit += o.profit; e.orders += 1;
+   357→    e.shipping += o.shippingCost; e.shipCount += 1;
+   358→  }
+   359→  const region = Array.from(regionMap.entries())
+   360→    .map(([k, v]) => ({
+   361→      region: k, revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders,
+   362→      avg_order: fcur(v.revenue / v.orders), avg_shipping: fcur(v.shipping / v.shipCount),
+   363→      profit_margin: round((v.profit / v.revenue) * 100, 1),
+   364→    })).sort((a, b) => b.revenue - a.revenue);
+   365→
+   366→  // Country
+   367→  const countryMap = new Map<string, { region: string; revenue: number; profit: number; orders: number }>();
+   368→  for (const o of orders) {
+   369→    if (!countryMap.has(o.country)) countryMap.set(o.country, { region: o.region, revenue: 0, profit: 0, orders: 0 });
+   370→    const e = countryMap.get(o.country)!;
+   371→    e.revenue += o.totalSales; e.profit += o.profit; e.orders += 1;
+   372→  }
+   373→  const country = Array.from(countryMap.entries())
+   374→    .map(([k, v]) => ({ country: k, region: v.region, revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders }))
+   375→    .sort((a, b) => b.revenue - a.revenue);
+   376→
+   377→  // Category
+   378→  const catMap = new Map<string, { revenue: number; profit: number; orders: number; units: number; priceSum: number; priceCount: number; discSum: number; discCount: number }>();
+   379→  for (const o of orders) {
+   380→    if (!catMap.has(o.productCategory)) catMap.set(o.productCategory, { revenue: 0, profit: 0, orders: 0, units: 0, priceSum: 0, priceCount: 0, discSum: 0, discCount: 0 });
+   381→    const e = catMap.get(o.productCategory)!;
+   382→    e.revenue += o.totalSales; e.profit += o.profit; e.orders += 1; e.units += o.quantity;
+   383→    e.priceSum += o.unitPrice; e.priceCount += 1; e.discSum += o.discountPercent; e.discCount += 1;
+   384→  }
+   385→  const category = Array.from(catMap.entries())
+   386→    .map(([k, v]) => ({
+   387→      category: k, revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders, units: v.units,
+   388→      avg_price: fcur(v.priceSum / v.priceCount), avg_discount: round(v.discSum / v.discCount, 2),
+   389→      profit_margin: round((v.profit / v.revenue) * 100, 1),
+   390→    })).sort((a, b) => b.revenue - a.revenue);
+   391→
+   392→  // Top products
+   393→  const prodMap = new Map<string, { category: string; revenue: number; profit: number; units: number; orders: number }>();
+   394→  for (const o of orders) {
+   395→    if (!prodMap.has(o.productName)) prodMap.set(o.productName, { category: o.productCategory, revenue: 0, profit: 0, units: 0, orders: 0 });
+   396→    const e = prodMap.get(o.productName)!;
+   397→    e.revenue += o.totalSales; e.profit += o.profit; e.units += o.quantity; e.orders += 1;
+   398→  }
+   399→  const top_products = Array.from(prodMap.entries())
+   400→    .map(([k, v]) => ({ product: k, category: v.category, revenue: fcur(v.revenue), profit: fcur(v.profit), units: v.units, orders: v.orders }))
+   401→    .sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+   402→
+   403→  // Segment
+   404→  const segMap = new Map<string, { revenue: number; profit: number; orders: number; discSum: number; discCount: number }>();
+   405→  for (const o of orders) {
+   406→    if (!segMap.has(o.customerSegment)) segMap.set(o.customerSegment, { revenue: 0, profit: 0, orders: 0, discSum: 0, discCount: 0 });
+   407→    const e = segMap.get(o.customerSegment)!;
+   408→    e.revenue += o.totalSales; e.profit += o.profit; e.orders += 1;
+   409→    e.discSum += o.discountPercent; e.discCount += 1;
+   410→  }
+   411→  const segment = Array.from(segMap.entries())
+   412→    .map(([k, v]) => ({
+   413→      segment: k, revenue: fcur(v.revenue), profit: fcur(v.profit), orders: v.orders,
+   414→      avg_order_value: fcur(v.revenue / v.orders), avg_discount: round(v.discSum / v.discCount, 2),
+   415→      profit_margin: round((v.profit / v.revenue) * 100, 1),
+   416→    })).sort((a, b) => b.revenue - a.revenue);
+   417→
+   418→  // Segment x Category
+   419→  const catKeys = Array.from(catMap.keys());
+   420→  const segCatMap = new Map<string, Record<string, number>>();
+   421→  for (const o of orders) {
+   422→    if (!segCatMap.has(o.customerSegment)) segCatMap.set(o.customerSegment, Object.fromEntries(catKeys.map((c) => [c, 0])));
+   423→    segCatMap.get(o.customerSegment)![o.productCategory] += o.totalSales;
+   424→  }
+   425→  const segment_category = Array.from(segCatMap.entries()).map(([seg, vals]) => ({
+   426→    segment: seg, values: Object.fromEntries(Object.entries(vals).map(([k, v]) => [k, fcur(v)])),
+   427→  }));
+   428→
+   429→  // Discount scatter (sample 200)
+   430→  const sample = [...orders].sort(() => Math.random() - 0.5).slice(0, 200);
+   431→  const discount_scatter = sample.map((o) => ({
+   432→    discount: o.discountPercent,
+   433→    profit_margin: o.totalSales > 0 ? round((o.profit / o.totalSales) * 100, 2) : 0,
+   434→    total_sales: fcur(o.totalSales), category: o.productCategory, product: o.productName,
+   435→  }));
+   436→
+   437→  // Discount ranges
+   438→  const drMap = new Map<string, { orders: number; revenue: number; profit: number; marginSum: number }>();
+   439→  for (const o of orders) {
+   440→    const r = discountRange(o.discountPercent);
+   441→    if (!drMap.has(r)) drMap.set(r, { orders: 0, revenue: 0, profit: 0, marginSum: 0 });
+   442→    const e = drMap.get(r)!;
+   443→    e.orders += 1; e.revenue += o.totalSales; e.profit += o.profit;
+   444→    if (o.totalSales > 0) e.marginSum += (o.profit / o.totalSales) * 100;
+   445→  }
+   446→  const drOrder = ["No Discount", "1-10%", "11-20%", "21-35%"];
+   447→  const discount_ranges = drOrder.map((r) => {
+   448→    const d = drMap.get(r)!;
+   449→    return { range: r, orders: d.orders, avg_revenue: fcur(d.revenue / d.orders),
+   450→      avg_profit: fcur(d.profit / d.orders), avg_margin: round(d.marginSum / d.orders, 2) };
+   451→  }).filter((d) => d.orders > 0);
+   452→
+   453→  // Payment
+   454→  const payMap = new Map<string, { orders: number; revenue: number }>();
+   455→  for (const o of orders) {
+   456→    if (!payMap.has(o.paymentMethod)) payMap.set(o.paymentMethod, { orders: 0, revenue: 0 });
+   457→    const e = payMap.get(o.paymentMethod)!;
+   458→    e.orders += 1; e.revenue += o.totalSales;
+   459→  }
+   460→  const totalPayOrders = Array.from(payMap.values()).reduce((s, v) => s + v.orders, 0);
+   461→  const payment = Array.from(payMap.entries())
+   462→    .map(([k, v]) => ({
+   463→      method: k, orders: v.orders, revenue: fcur(v.revenue),
+   464→      share: round((v.orders / totalPayOrders) * 100, 1), avg_order: fcur(v.revenue / v.orders),
+   465→    })).sort((a, b) => b.orders - a.orders);
+   466→
+   467→  const shipping = region.map((r) => ({
+   468→    region: r.region, avg_shipping: r.avg_shipping, profit_margin: r.profit_margin,
+   469→  }));
+   470→
+   471→  // Correlation
+   472→  const CORR_FEATURES = ["Quantity", "Unit_Price", "Discount_Percent", "Total_Sales", "Shipping_Cost", "Profit", "Profit_Margin"];
+   473→  const corrCols: Record<string, number[]> = {};
+   474→  for (const f of CORR_FEATURES) corrCols[f] = [];
+   475→  for (const o of orders) {
+   476→    corrCols.Quantity.push(o.quantity);
+   477→    corrCols.Unit_Price.push(o.unitPrice);
+   478→    corrCols.Discount_Percent.push(o.discountPercent);
+   479→    corrCols.Total_Sales.push(o.totalSales);
+   480→    corrCols.Shipping_Cost.push(o.shippingCost);
+   481→    corrCols.Profit.push(o.profit);
+   482→    corrCols.Profit_Margin.push(o.totalSales > 0 ? (o.profit / o.totalSales) * 100 : 0);
+   483→  }
+   484→  const correlation = CORR_FEATURES.map((a) => {
+   485→    const row: Record<string, string | number> = { feature: a };
+   486→    for (const b of CORR_FEATURES) row[b] = round(pearson(corrCols[a], corrCols[b]), 2);
+   487→    return row;
+   488→  });
+   489→
+   490→  // Day of week
+   491→  const dowMap = new Map<string, { orders: number; revenue: number }>();
+   492→  for (const d of DOW_ORDER) dowMap.set(d, { orders: 0, revenue: 0 });
+   493→  for (const o of orders) {
+   494→    const d = DOW_ORDER[o.orderDate.getUTCDay()];
+   495→    const e = dowMap.get(d)!;
+   496→    e.orders += 1; e.revenue += o.totalSales;
+   497→  }
+   498→  const dow = DOW_ORDER.slice(1).concat([DOW_ORDER[0]]).map((d) => {
+   499→    const e = dowMap.get(d)!;
+   500→    return { day: d, orders: e.orders, avg_revenue: e.orders > 0 ? fcur(e.revenue / e.orders) : 0 };
+   501→  });
+   502→
+   503→  return {
+   504→    kpis, monthly, yoy, heatmap, region, country, category, top_products,
+   505→    segment, segment_category, discount_scatter, discount_ranges, payment,
+   506→    shipping, correlation, correlation_features: CORR_FEATURES, dow,
+   507→  };
+   508→}
+   509→
+   510→export type RecentOrdersParams = {
+   511→  search?: string; category?: string; region?: string;
+   512→  payment?: string; segment?: string; limit?: number; offset?: number;
+   513→};
+   514→
+   515→export async function getRecentOrders(params: RecentOrdersParams) {
+   516→  const { search, category, region, payment, segment, limit = 25, offset = 0 } = params;
+   517→  const where: Record<string, unknown> = {};
+   518→  if (category && category !== "all") where.productCategory = category;
+   519→  if (region && region !== "all") where.region = region;
+   520→  if (payment && payment !== "all") where.paymentMethod = payment;
+   521→  if (segment && segment !== "all") where.customerSegment = segment;
+   522→  if (search) {
+   523→    where.OR = [
+   524→      { id: { contains: search } },
+   525→      { customerName: { contains: search } },
+   526→      { productName: { contains: search } },
+   527→      { country: { contains: search } },
+   528→    ];
+   529→  }
+   530→  const [total, rows] = await Promise.all([
+   531→    db.order.count({ where }),
+   532→    db.order.findMany({ where, orderBy: { orderDate: "desc" }, take: limit, skip: offset }),
+   533→  ]);
+   534→  return {
+   535→    total,
+   536→    rows: rows.map((o) => ({
+   537→      id: o.id, date: o.orderDate.toISOString().slice(0, 10),
+   538→      customer: o.customerName, country: o.country, region: o.region,
+   539→      product: o.productName, category: o.productCategory, quantity: o.quantity,
+   540→      total_sales: round(o.totalSales, 2), profit: round(o.profit, 2),
+   541→      discount_percent: o.discountPercent, payment_method: o.paymentMethod,
+   542→      customer_segment: o.customerSegment,
+   543→    })),
+   544→  };
+   545→}
+   546→```
+   547→
+   548→---
+   549→
+   550→### 6. [`scripts/seed-orders.ts`](file:///c:/Users/manga/Downloads/archive/scripts/seed-orders.ts) — Synthetic Data Seeder
+   551→
+   552→```ts
+   553→import { PrismaClient } from "@prisma/client";
+   554→import {
+   555→  COUNTRIES, REGIONS, CATEGORIES, PRODUCTS, CUSTOMER_SEGMENTS, PAYMENT_METHODS,
+   556→  REGION_SHIP_BASE, CATEGORY_MARGIN, SEGMENT_DISCOUNT, MONTH_WEIGHTS,
+   557→  FIRST_NAMES, LAST_NAMES, weightedPick, makeRng,
+   558→  type Region, type Category, type CustomerSegment,
+   559→} from "../src/lib/ecommerce-domain";
+   560→
+   561→const db = new PrismaClient();
+   562→const N_TXNS = 2000;
+   563→const YEARS = [2023, 2024, 2025];
+   564→
+   565→const rand = (rng: () => number, min: number, max: number) => min + rng() * (max - min);
+   566→const randInt = (rng: () => number, lo: number, hi: number) => Math.floor(rand(rng, lo, hi + 1));
+   567→const pick = <T,>(arr: readonly T[], rng: () => number): T => arr[Math.floor(rng() * arr.length)];
+   568→
+   569→function generateOrder(i: number, rng: () => number) {
+   570→  const month = weightedPick(Array.from({ length: 12 }, (_, k) => k + 1), MONTH_WEIGHTS);
+   571→  const year = pick(YEARS, rng);
+   572→  const day = randInt(rng, 1, 28);
+   573→  const orderDate = new Date(year, month - 1, day);
+   574→
+   575→  const region = weightedPick(REGIONS as unknown as Region[], [34, 28, 22, 9, 7]);
+   576→  const country = pick(COUNTRIES[region], rng);
+   577→  const category = weightedPick(CATEGORIES as unknown as Category[], [40, 28, 20, 12]);
+   578→  const product = pick(PRODUCTS[category], rng);
+   579→  const unitPrice = product.price;
+   580→  const quantity = weightedPick([1, 2, 3, 4, 5], [45, 28, 14, 8, 5]);
+   581→  const segment = weightedPick(CUSTOMER_SEGMENTS as unknown as CustomerSegment[], [55, 30, 15]);
+   582→
+   583→  let [dLo, dHi] = SEGMENT_DISCOUNT[segment];
+   584→  if (unitPrice > 200) dLo += 2;
+   585→  const discountPercent = rng() > 0.15 ? Math.round(rand(rng, dLo, dHi) * 10) / 10 : 0;
+   586→
+   587→  const gross = unitPrice * quantity;
+   588→  const discountAmount = (gross * discountPercent) / 100;
+   589→  const totalSales = Math.round((gross - discountAmount) * 100) / 100;
+   590→
+   591→  const baseMargin = CATEGORY_MARGIN[category];
+   592→  const shippingCost = Math.round((REGION_SHIP_BASE[region] + rand(rng, -3, 5)) * 100) / 100;
+   593→  const profit = Math.round((baseMargin * gross - discountAmount - shippingCost) * 100) / 100;
+   594→
+   595→  const payment = weightedPick(PAYMENT_METHODS as unknown as string[], [55, 25, 12, 8]);
+   596→  const customer = `${pick(FIRST_NAMES, rng)} ${pick(LAST_NAMES, rng)}`;
+   597→  const yearIdx = YEARS.indexOf(year);
+   598→  const id = `ORD-${yearIdx * 10000 + i + 1}`;
+   599→
+   600→  return {
+   601→    id, orderDate, customerName: customer, customerSegment: segment,
+   602→    country, region, productCategory: category, productName: product.name,
+   603→    quantity, unitPrice, discountPercent, shippingCost, totalSales,
+   604→    profit, paymentMethod: payment,
+   605→  };
+   606→}
+   607→
+   608→async function main() {
+   609→  const existing = await db.order.count();
+   610→  if (existing > 0) {
+   611→    console.log(`Database already has ${existing} orders. Skipping seed.`);
+   612→    return;
+   613→  }
+   614→  console.log(`Seeding ${N_TXNS} synthetic orders...`);
+   615→  const rng = makeRng(42);
+   616→  const CHUNK = 250;
+   617→  for (let chunkStart = 0; chunkStart < N_TXNS; chunkStart += CHUNK) {
+   618→    const batch = [];
+   619→    for (let i = chunkStart; i < Math.min(chunkStart + CHUNK, N_TXNS); i++) {
+   620→      batch.push(generateOrder(i, rng));
+   621→    }
+   622→    await db.order.createMany({ data: batch });
+   623→    console.log(`  Inserted orders ${chunkStart + 1}–${chunkStart + batch.length}`);
+   624→  }
+   625→  const final = await db.order.count();
+   626→  console.log(`✓ Seed complete. Database now has ${final} orders.`);
+   627→}
+   628→
+   629→main().catch((e) => { console.error("Seed failed:", e); process.exit(1); })
+   630→  .finally(async () => { await db.$disconnect(); });
+   631→```
+   632→
+   633→---
+   634→
+   635→### 7. [`src/app/api/analytics/route.ts`](file:///c:/Users/manga/Downloads/archive/src/app/api/analytics/route.ts) — Analytics Endpoint
+   636→
+   637→```ts
+   638→import { NextResponse } from "next/server";
+   639→import { getAnalytics } from "@/lib/analytics";
+   640→
+   641→let cache: { ts: number; data: Awaited<ReturnType<typeof getAnalytics>> } | null = null;
+   642→const TTL_MS = 60_000;
+   643→
+   644→export async function GET(request: Request) {
+   645→  const { searchParams } = new URL(request.url);
+   646→  const refresh = searchParams.get("refresh") === "1";
+   647→
+   648→  if (!refresh && cache && Date.now() - cache.ts < TTL_MS) {
+   649→    return NextResponse.json({
+   650→      cached: true,
+   651→      generated_at: new Date(cache.ts).toISOString(),
+   652→      data: cache.data,
+   653→    });
+   654→  }
+   655→
+   656→  const data = await getAnalytics();
+   657→  cache = { ts: Date.now(), data };
+   658→
+   659→  return NextResponse.json({
+   660→    cached: false,
+   661→    generated_at: new Date().toISOString(),
+   662→    data,
+   663→  });
+   664→}
+   665→```
+   666→
+   667→---
+   668→
+   669→### 8. [`src/app/api/orders/route.ts`](file:///c:/Users/manga/Downloads/archive/src/app/api/orders/route.ts) — Orders List & Create Endpoint
+   670→
+   671→```ts
+   672→import { NextResponse } from "next/server";
+   673→import { db } from "@/lib/db";
+   674→import { getRecentOrders } from "@/lib/analytics";
+   675→
+   676→export async function GET(request: Request) {
+   677→  const { searchParams } = new URL(request.url);
+   678→  const limit = Math.min(parseInt(searchParams.get("limit") || "25", 10) || 25, 100);
+   679→  const offset = Math.max(parseInt(searchParams.get("offset") || "0", 10) || 0, 0);
+   680→
+   681→  const result = await getRecentOrders({
+   682→    search: searchParams.get("search") || undefined,
+   683→    category: searchParams.get("category") || undefined,
+   684→    region: searchParams.get("region") || undefined,
+   685→    payment: searchParams.get("payment") || undefined,
+   686→    segment: searchParams.get("segment") || undefined,
+   687→    limit, offset,
+   688→  });
+   689→
+   690→  return NextResponse.json(result);
+   691→}
+   692→
+   693→export async function POST(request: Request) {
+   694→  let body: Record<string, unknown>;
+   695→  try { body = await request.json(); }
+   696→  catch { return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 }); }
+   697→
+   698→  const required = [
+   699→    "orderDate", "customerName", "customerSegment", "country", "region",
+   700→    "productCategory", "productName", "quantity", "unitPrice",
+   701→    "discountPercent", "shippingCost", "totalSales", "profit", "paymentMethod",
+   702→  ];
+   703→  for (const f of required) {
+   704→    if (body[f] === undefined || body[f] === null) {
+   705→      return NextResponse.json({ error: `Missing field: ${f}` }, { status: 422 });
+   706→    }
+   707→  }
+   708→
+   709→  const id = (body.id as string) || `ORD-${Date.now()}-${Math.floor(Math.random() * 1e4)}`;
+   710→
+   711→  const created = await db.order.create({
+   712→    data: {
+   713→      id,
+   714→      orderDate: new Date(body.orderDate as string),
+   715→      customerName: String(body.customerName),
+   716→      customerSegment: String(body.customerSegment),
+   717→      country: String(body.country),
+   718→      region: String(body.region),
+   719→      productCategory: String(body.productCategory),
+   720→      productName: String(body.productName),
+   721→      quantity: Number(body.quantity),
+   722→      unitPrice: Number(body.unitPrice),
+   723→      discountPercent: Number(body.discountPercent),
+   724→      shippingCost: Number(body.shippingCost),
+   725→      totalSales: Number(body.totalSales),
+   726→      profit: Number(body.profit),
+   727→      paymentMethod: String(body.paymentMethod),
+   728→    },
+   729→  });
+   730→
+   731→  return NextResponse.json({ ok: true, id: created.id }, { status: 201 });
+   732→}
+   733→```
+   734→
+   735→---
+   736→
+   737→### 9. [`src/app/api/orders/[id]/route.ts`](file:///c:/Users/manga/Downloads/archive/src/app/api/orders/%5Bid%5D/route.ts) — Single Order Item Endpoint
+   738→
+   739→```ts
+   740→import { NextResponse } from "next/server";
+   741→import { db } from "@/lib/db";
+   742→
+   743→export async function GET(
+   744→  _request: Request,
+   745→  { params }: { params: Promise<{ id: string }> }
+   746→) {
+   747→  const { id } = await params;
+   748→  const order = await db.order.findUnique({ where: { id } });
+   749→  if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+   750→  return NextResponse.json(order);
+   751→}
+   752→
+   753→export async function DELETE(
+   754→  _request: Request,
+   755→  { params }: { params: Promise<{ id: string }> }
+   756→) {
+   757→  const { id } = await params;
+   758→  try {
+   759→    await db.order.delete({ where: { id } });
+   760→    return NextResponse.json({ ok: true, id });
+   761→  } catch {
+   762→    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+   763→  }
+   764→}
+   765→
+   766→export async function PATCH(
+   767→  request: Request,
+   768→  { params }: { params: Promise<{ id: string }> }
+   769→) {
+   770→  const { id } = await params;
+   771→  let body: Record<string, unknown>;
+   772→  try { body = await request.json(); }
+   773→  catch { return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 }); }
+   774→
+   775→  const allowed: Record<string, string> = {
+   776→    orderDate: "orderDate", customerName: "customerName",
+   777→    customerSegment: "customerSegment", country: "country", region: "region",
+   778→    productCategory: "productCategory", productName: "productName",
+   779→    quantity: "quantity", unitPrice: "unitPrice",
+   780→    discountPercent: "discountPercent", shippingCost: "shippingCost",
+   781→    totalSales: "totalSales", profit: "profit", paymentMethod: "paymentMethod",
+   782→  };
+   783→  const data: Record<string, unknown> = {};
+   784→  for (const [k, v] of Object.entries(body)) {
+   785→    if (allowed[k]) {
+   786→      if (k === "orderDate") data[allowed[k]] = new Date(v as string);
+   787→      else data[allowed[k]] = v;
+   788→    }
+   789→  }
+   790→
+   791→  try {
+   792→    const updated = await db.order.update({ where: { id }, data });
+   793→    return NextResponse.json({ ok: true, id: updated.id });
+   794→  } catch {
+   795→    return NextResponse.json({ error: "Order not found or update failed" }, { status: 404 });
+   796→  }
+   797→}
+   798→```
+   799→
+   800→---
+   801→
+   802→### 10. [`src/app/api/health/route.ts`](file:///c:/Users/manga/Downloads/archive/src/app/api/health/route.ts) — System Health Check
+   803→
+   804→```ts
+   805→import { NextResponse } from "next/server";
+   806→import { db } from "@/lib/db";
+   807→
+   808→export async function GET() {
+   809→  const orderCount = await db.order.count();
+   810→  const lastOrder = await db.order.findFirst({ orderBy: { orderDate: "desc" } });
+   811→  return NextResponse.json({
+   812→    ok: true,
+   813→    db: "sqlite",
+   814→    orders: orderCount,
+   815→    latest_order_date: lastOrder?.orderDate?.toISOString() ?? null,
+   816→    timestamp: new Date().toISOString(),
+   817→  });
+   818→}
+   819→```
