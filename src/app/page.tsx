@@ -2,154 +2,146 @@
 
 import * as React from "react";
 
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { SidebarNav } from "@/components/dashboard/sidebar-nav";
-import { KpiCards } from "@/components/dashboard/kpi-cards";
-import { SalesTrendChart } from "@/components/dashboard/sales-trend-chart";
-import { CategoryChart } from "@/components/dashboard/category-chart";
-import { TopProductsChart } from "@/components/dashboard/top-products-chart";
-import { RegionChart } from "@/components/dashboard/region-chart";
-import { FunnelChart } from "@/components/dashboard/funnel-chart";
-import { RecentOrdersTable } from "@/components/dashboard/recent-orders-table";
-import {
-  formatCurrency,
-  formatNumber,
-  kpis,
-  calcChange,
-} from "@/lib/dashboard-data";
-import {
-  DollarSign,
-  PackageCheck,
-  RotateCcw,
-  UserPlus,
-} from "lucide-react";
-
-function StatChip({
-  icon,
-  label,
-  value,
-  change,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  change: number;
-}) {
-  const positive = change >= 0;
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card px-3 py-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-        {icon}
-      </div>
-      <div className="flex flex-col leading-tight">
-        <span className="text-[11px] text-muted-foreground">{label}</span>
-        <span className="text-sm font-semibold tabular-nums">{value}</span>
-      </div>
-      <div
-        className={`ml-auto text-xs font-medium tabular-nums ${
-          positive ? "text-emerald-600" : "text-rose-600"
-        }`}
-      >
-        {positive ? "+" : ""}
-        {change.toFixed(1)}%
-      </div>
-    </div>
-  );
-}
+import { DashboardHeader } from "@/components/ecommerce/dashboard-header";
+import { KpiCards } from "@/components/ecommerce/kpi-cards";
+import { MonthlyTrendChart } from "@/components/ecommerce/monthly-trend-chart";
+import { YoyComparisonChart } from "@/components/ecommerce/yoy-chart";
+import { QuarterlyHeatmap } from "@/components/ecommerce/quarterly-heatmap";
+import { RegionChart } from "@/components/ecommerce/region-chart";
+import { CountryChart } from "@/components/ecommerce/country-chart";
+import { CategoryChart } from "@/components/ecommerce/category-chart";
+import { TopProductsChart } from "@/components/ecommerce/top-products-chart";
+import { SegmentChart } from "@/components/ecommerce/segment-chart";
+import { SegmentCategoryChart } from "@/components/ecommerce/segment-category-chart";
+import { DiscountScatterChart } from "@/components/ecommerce/discount-scatter-chart";
+import { DiscountRangeChart } from "@/components/ecommerce/discount-range-chart";
+import { PaymentMethodChart } from "@/components/ecommerce/payment-method-chart";
+import { ShippingCostChart } from "@/components/ecommerce/shipping-cost-chart";
+import { CorrelationHeatmap } from "@/components/ecommerce/correlation-heatmap";
+import { DayOfWeekChart } from "@/components/ecommerce/day-of-week-chart";
+import { RecentOrdersTable } from "@/components/ecommerce/recent-orders-table";
+import { KeyInsights } from "@/components/ecommerce/key-insights";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = React.useState("overview");
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <DashboardHeader />
-      <div className="flex flex-1">
-        <SidebarNav />
-        <main className="flex-1 overflow-x-hidden px-4 py-5 md:px-6 lg:px-7">
-          {/* Page heading */}
-          <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
-                Sales Analytics
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Track revenue, orders, customers and product performance in real time.
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="rounded-md border border-border/60 bg-muted/40 px-2 py-1 font-medium">
-                Last updated: {new Date().toLocaleString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
+      <DashboardHeader activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <main className="flex-1 overflow-x-hidden px-4 py-5 md:px-6 lg:px-8">
+        {/* Page heading */}
+        <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
+              Global E-Commerce Sales &amp; Customer Analytics
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Interactive dashboard mirroring the EDA notebook · 2,000 transactions across 22 countries, 4 categories, 3 customer segments (2023 – 2025)
+            </p>
           </div>
-
-          {/* KPI cards */}
-          <KpiCards />
-
-          {/* Secondary stat chips */}
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatChip
-              icon={<UserPlus className="h-4 w-4" />}
-              label="New Customers"
-              value={formatNumber(kpis.newCustomers)}
-              change={calcChange(kpis.newCustomers, kpis.newCustomersPrev)}
-            />
-            <StatChip
-              icon={<PackageCheck className="h-4 w-4" />}
-              label="Fulfilled Orders"
-              value={formatNumber(kpis.totalOrders - 142)}
-              change={calcChange(kpis.totalOrders - 142, kpis.ordersPrev - 168)}
-            />
-            <StatChip
-              icon={<RotateCcw className="h-4 w-4" />}
-              label="Refunds"
-              value={formatNumber(kpis.refunds)}
-              change={calcChange(kpis.refunds, kpis.refundsPrev)}
-            />
-            <StatChip
-              icon={<DollarSign className="h-4 w-4" />}
-              label="Gross Profit"
-              value={formatCurrency(228710, true)}
-              change={16.2}
-            />
-          </div>
-
-          {/* Main charts grid */}
-          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <SalesTrendChart />
-            <CategoryChart />
-          </div>
-
-          {/* Secondary charts grid */}
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <TopProductsChart />
-            <RegionChart />
-            <FunnelChart />
-          </div>
-
-          {/* Recent orders table */}
-          <div className="mt-4 grid grid-cols-1 gap-4">
-            <RecentOrdersTable />
-          </div>
-
-          {/* Footer */}
-          <footer className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
-            <span>
-              © {new Date().getFullYear()} CommerceIQ. Sales data is illustrative.
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="rounded-md border border-border/60 bg-muted/40 px-2 py-1 font-medium">
+              Last updated: {new Date().toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </span>
-              All systems operational
+          </div>
+        </div>
+
+        {/* KPI summary (always visible) */}
+        <KpiCards />
+
+        {/* Tab sections */}
+        <div className="mt-5 space-y-4">
+          {activeTab === "overview" && (
+            <>
+              <MonthlyTrendChart />
+              <KeyInsights />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <YoyComparisonChart />
+                <QuarterlyHeatmap />
+              </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <RegionChart />
+                <CategoryChart />
+              </div>
+            </>
+          )}
+
+          {activeTab === "sales" && (
+            <>
+              <MonthlyTrendChart />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <YoyComparisonChart />
+                <QuarterlyHeatmap />
+              </div>
+              <DayOfWeekChart />
+            </>
+          )}
+
+          {activeTab === "geo" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <RegionChart />
+                <ShippingCostChart />
+              </div>
+              <CountryChart />
+            </>
+          )}
+
+          {activeTab === "products" && (
+            <>
+              <CategoryChart />
+              <TopProductsChart />
+            </>
+          )}
+
+          {activeTab === "customers" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <SegmentChart />
+                <PaymentMethodChart />
+              </div>
+              <SegmentCategoryChart />
+            </>
+          )}
+
+          {activeTab === "operations" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <DiscountRangeChart />
+                <ShippingCostChart />
+              </div>
+              <DiscountScatterChart />
+              <CorrelationHeatmap />
+            </>
+          )}
+        </div>
+
+        {/* Recent orders always visible */}
+        <div className="mt-4 grid grid-cols-1 gap-4">
+          <RecentOrdersTable />
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
+          <span>
+            © {new Date().getFullYear()} CommerceIQ · Synthetic dataset mirroring{" "}
+            <span className="font-mono">global_ecommerce_sales.csv</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-          </footer>
-        </main>
-      </div>
+            All systems operational
+          </span>
+        </footer>
+      </main>
     </div>
   );
 }
