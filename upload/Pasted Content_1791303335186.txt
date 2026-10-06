@@ -1,0 +1,821 @@
+Viewed page.tsx:1-140
+Listed directory ecommerce
+Viewed layout.tsx:1-29
+Viewed dashboard-header.tsx:1-152
+Viewed kpi-cards.tsx:1-122
+Viewed monthly-trend-chart.tsx:1-74
+Viewed recent-orders-table.tsx:1-146
+Viewed key-insights.tsx:1-105
+Viewed yoy-chart.tsx:1-67
+Viewed theme-provider.tsx:1-12
+Viewed ecommerce-data.ts:1-50
+Viewed ecommerce-data.ts:2740-2789
+
+Here is the complete **Frontend Code** for the **E-Commerce Sales Analytics Dashboard**, built with Next.js 14 App Router, React 18, Tailwind CSS, shadcn/ui components, and Recharts.
+
+---
+
+### 📁 Frontend File Structure
+
+```
+c:\Users\manga\Downloads\archive\
+└── src/
+    ├── app/
+    │   ├── layout.tsx                     # Root HTML layout, Fonts & Theme provider
+    │   ├── page.tsx                       # Tabbed dashboard (Overview, Sales, Geo, Products, Customers, Operations)
+    │   └── globals.css                    # Design system, CSS variables & chart tokens
+    ├── components/
+    │   ├── theme-provider.tsx             # Next-themes dark/light mode context provider
+    │   └── ecommerce/
+    │       ├── dashboard-header.tsx       # Sticky navbar, search, time range, theme toggle
+    │       ├── kpi-cards.tsx              # Executive KPIs with SVG sparklines & YoY deltas
+    │       ├── monthly-trend-chart.tsx    # Dual-axis area/line monthly revenue & profit
+    │       ├── yoy-chart.tsx              # Year-over-Year bar & line comparative chart
+    │       ├── recent-orders-table.tsx    # Searchable, filterable, sortable orders explorer
+    │       └── key-insights.tsx           # Automated takeaway findings & margin warnings
+    └── lib/
+        └── ecommerce-data.ts              # Data types, formatters, and datasets
+```
+
+---
+
+## 1. Root Layout
+
+### 📄 [`src/app/layout.tsx`](file:///c:/Users/manga/Downloads/archive/src/app/layout.tsx)
+Sets up Next.js App Router root layout, Inter and JetBrains Mono typography, `ThemeProvider`, and toast notifications:
+
+```tsx
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
+
+const fontSans = Inter({ variable: "--font-geist-sans", subsets: ["latin"] });
+const fontMono = JetBrains_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Sales Analytics Dashboard | CommerceIQ",
+  description: "Real-time e-commerce sales analytics dashboard with revenue trends, product performance, and regional insights.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${fontSans.variable} ${fontMono.variable} antialiased bg-background text-foreground`}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+## 2. Main Dashboard Page
+
+### 📄 [`src/app/page.tsx`](file:///c:/Users/manga/Downloads/archive/src/app/page.tsx)
+Coordinates the 6 analytical views (*Overview*, *Sales*, *Geographic*, *Products*, *Customers*, *Operations*), executive KPI cards, live order explorer, and footer:
+
+```tsx
+"use client";
+
+import * as React from "react";
+
+import { DashboardHeader } from "@/components/ecommerce/dashboard-header";
+import { KpiCards } from "@/components/ecommerce/kpi-cards";
+import { MonthlyTrendChart } from "@/components/ecommerce/monthly-trend-chart";
+import { YoyComparisonChart } from "@/components/ecommerce/yoy-chart";
+import { QuarterlyHeatmap } from "@/components/ecommerce/quarterly-heatmap";
+import { RegionChart } from "@/components/ecommerce/region-chart";
+import { CountryChart } from "@/components/ecommerce/country-chart";
+import { CategoryChart } from "@/components/ecommerce/category-chart";
+import { TopProductsChart } from "@/components/ecommerce/top-products-chart";
+import { SegmentChart } from "@/components/ecommerce/segment-chart";
+import { SegmentCategoryChart } from "@/components/ecommerce/segment-category-chart";
+import { DiscountScatterChart } from "@/components/ecommerce/discount-scatter-chart";
+import { DiscountRangeChart } from "@/components/ecommerce/discount-range-chart";
+import { PaymentMethodChart } from "@/components/ecommerce/payment-method-chart";
+import { ShippingCostChart } from "@/components/ecommerce/shipping-cost-chart";
+import { CorrelationHeatmap } from "@/components/ecommerce/correlation-heatmap";
+import { DayOfWeekChart } from "@/components/ecommerce/day-of-week-chart";
+import { RecentOrdersTable } from "@/components/ecommerce/recent-orders-table";
+import { KeyInsights } from "@/components/ecommerce/key-insights";
+
+export default function Home() {
+  const [activeTab, setActiveTab] = React.useState("overview");
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <DashboardHeader activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <main className="flex-1 overflow-x-hidden px-4 py-5 md:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
+              Global E-Commerce Sales &amp; Customer Analytics
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Interactive dashboard mirroring the EDA notebook · 2,000 transactions across 22 countries, 4 categories, 3 customer segments (2023 – 2025)
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="rounded-md border border-border/60 bg-muted/40 px-2 py-1 font-medium">
+              Last updated: {new Date().toLocaleString("en-US", {
+                month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+              })}
+            </span>
+          </div>
+        </div>
+
+        <KpiCards />
+
+        <div className="mt-5 space-y-4">
+          {activeTab === "overview" && (
+            <>
+              <MonthlyTrendChart />
+              <KeyInsights />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <YoyComparisonChart />
+                <QuarterlyHeatmap />
+              </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <RegionChart />
+                <CategoryChart />
+              </div>
+            </>
+          )}
+
+          {activeTab === "sales" && (
+            <>
+              <MonthlyTrendChart />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <YoyComparisonChart />
+                <QuarterlyHeatmap />
+              </div>
+              <DayOfWeekChart />
+            </>
+          )}
+
+          {activeTab === "geo" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <RegionChart />
+                <ShippingCostChart />
+              </div>
+              <CountryChart />
+            </>
+          )}
+
+          {activeTab === "products" && (
+            <>
+              <CategoryChart />
+              <TopProductsChart />
+            </>
+          )}
+
+          {activeTab === "customers" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <SegmentChart />
+                <PaymentMethodChart />
+              </div>
+              <SegmentCategoryChart />
+            </>
+          )}
+
+          {activeTab === "operations" && (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <DiscountRangeChart />
+                <ShippingCostChart />
+              </div>
+              <DiscountScatterChart />
+              <CorrelationHeatmap />
+            </>
+          )}
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4">
+          <RecentOrdersTable />
+        </div>
+
+        <footer className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
+          <span>
+            © {new Date().getFullYear()} CommerceIQ · Synthetic dataset mirroring{" "}
+            <span className="font-mono">global_ecommerce_sales.csv</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            </span>
+            All systems operational
+          </span>
+        </footer>
+      </main>
+    </div>
+  );
+}
+```
+
+---
+
+## 3. Navigation Header
+
+### 📄 [`src/components/ecommerce/dashboard-header.tsx`](file:///c:/Users/manga/Downloads/archive/src/components/ecommerce/dashboard-header.tsx)
+Header with search bar, tab switcher, time-range selector, live pulse indicator, and dark/light mode toggle:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import { useTheme } from "next-themes";
+import {
+  BarChart3, Calendar, ChevronDown, Database, Moon, Search, Sun,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export function DashboardHeader({
+  activeTab, onTabChange,
+}: { activeTab: string; onTabChange: (t: string) => void }) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  const TABS = [
+    { id: "overview", label: "Overview" },
+    { id: "sales", label: "Sales" },
+    { id: "geo", label: "Geographic" },
+    { id: "products", label: "Products" },
+    { id: "customers", label: "Customers" },
+    { id: "operations", label: "Operations" },
+  ];
+
+  return (
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center gap-3 px-4 md:px-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <div className="hidden flex-col leading-tight sm:flex">
+            <span className="text-sm font-semibold tracking-tight">CommerceIQ</span>
+            <span className="text-[11px] text-muted-foreground">Global Sales Analytics</span>
+          </div>
+        </div>
+
+        <nav className="ml-4 hidden items-center gap-1 lg:flex">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => onTabChange(t.id)}
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                activeTab === t.id
+                  ? "bg-primary text-primary-foreground font-medium shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="relative ml-auto hidden max-w-xs md:block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search the dashboard..." className="h-9 pl-9 bg-muted/40 border-border/60" />
+        </div>
+
+        <div className="ml-auto flex items-center gap-2 md:ml-0">
+          <Select defaultValue="3y">
+            <SelectTrigger className="hidden h-9 w-[150px] gap-2 sm:flex">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2025">2025 only</SelectItem>
+              <SelectItem value="2024">2024 only</SelectItem>
+              <SelectItem value="3y">2023 – 2025</SelectItem>
+              <SelectItem value="ytd">Year to date</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="hidden items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2.5 py-1.5 text-xs font-medium text-muted-foreground lg:flex">
+            <Database className="h-3.5 w-3.5" />
+            2,000 txns
+          </div>
+
+          <div className="hidden items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2.5 py-1.5 text-xs font-medium text-muted-foreground lg:flex">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            Live
+          </div>
+
+          {mounted && (
+            <Button variant="ghost" size="icon" className="h-9 w-9"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-2 py-1 transition-colors hover:bg-muted/60">
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                    AK
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden flex-col items-start leading-tight sm:flex">
+                  <span className="text-xs font-medium">Alex K.</span>
+                  <span className="text-[10px] text-muted-foreground">Analyst</span>
+                </div>
+                <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Export report</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive">Sign out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <div className="flex overflow-x-auto border-t border-border/60 px-2 py-1.5 lg:hidden">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => onTabChange(t.id)}
+            className={`shrink-0 rounded-md px-3 py-1.5 text-xs transition-colors ${
+              activeTab === t.id
+                ? "bg-primary text-primary-foreground font-medium"
+                : "text-muted-foreground hover:bg-muted/60"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </header>
+  );
+}
+```
+
+---
+
+## 4. Executive KPI Metrics Cards
+
+### 📄 [`src/components/ecommerce/kpi-cards.tsx`](file:///c:/Users/manga/Downloads/archive/src/components/ecommerce/kpi-cards.tsx)
+Displays the 8 core operational metrics with inline SVG sparklines and YoY change calculations:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import {
+  ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, Package,
+  Percent, Truck, UserCheck, Users, Wallet,
+} from "lucide-react";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import {
+  kpis, calcChange, formatCurrency, formatNumber, monthlyData,
+} from "@/lib/ecommerce-data";
+
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 100, h = 30;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const step = w / Math.max(1, data.length - 1);
+  const points = data.map((v, i) => `${i * step},${h - ((v - min) / range) * h}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-8 w-full" aria-hidden>
+      <polyline points={points} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+type KpiProps = {
+  title: string; value: string; change?: number; icon: React.ReactNode;
+  sparkData: number[]; sparkColor: string; caption?: string;
+};
+
+function KpiCard({ title, value, change, icon, sparkData, sparkColor, caption }: KpiProps) {
+  const showChange = change !== undefined;
+  const isPositive = (change ?? 0) >= 0;
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardDescription className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {title}
+            </CardDescription>
+            <CardTitle className="text-xl font-semibold tracking-tight tabular-nums sm:text-2xl">
+              {value}
+            </CardTitle>
+          </div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg"
+            style={{ backgroundColor: `${sparkColor}1a`, color: sparkColor }}>
+            {icon}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex items-center justify-between gap-2">
+          {showChange ? (
+            <div className={`flex items-center gap-1 text-xs font-medium ${
+              isPositive ? "text-emerald-600" : "text-rose-600"}`}>
+              {isPositive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+              <span className="tabular-nums">{Math.abs(change as number).toFixed(1)}%</span>
+              <span className="text-muted-foreground font-normal">{caption ?? "vs 2024"}</span>
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground">{caption}</div>
+          )}
+          <div className="w-24"><Sparkline data={sparkData} color={sparkColor} /></div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function KpiCards() {
+  const recentMonthly = monthlyData.slice(-12);
+  const revSpark = recentMonthly.map((m) => m.revenue);
+  const profitSpark = recentMonthly.map((m) => m.profit);
+  const ordersSpark = recentMonthly.map((m) => m.orders);
+
+  const yearly = kpis.yearly;
+  const years = Object.keys(yearly).map(Number).sort();
+  const lastYear = years[years.length - 1] || 2025;
+  const prevYear = years[years.length - 2] || 2024;
+  const yCur = yearly[lastYear] || { revenue: 0, profit: 0, orders: 0 };
+  const yPrev = yearly[prevYear] || { revenue: 1, profit: 1, orders: 1 };
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <KpiCard title="Total Revenue" value={formatCurrency(kpis.total_sales, true)}
+        change={calcChange(yCur.revenue, yPrev.revenue)}
+        icon={<DollarSign className="h-4 w-4" />} sparkData={revSpark} sparkColor="#10b981"
+        caption={`vs ${prevYear}`} />
+      <KpiCard title="Net Profit" value={formatCurrency(kpis.total_profit, true)}
+        change={calcChange(yCur.profit, yPrev.profit)}
+        icon={<Wallet className="h-4 w-4" />} sparkData={profitSpark} sparkColor="#f59e0b"
+        caption={`vs ${prevYear}`} />
+      <KpiCard title="Total Orders" value={formatNumber(kpis.total_orders)}
+        change={calcChange(yCur.orders, yPrev.orders)}
+        icon={<Package className="h-4 w-4" />} sparkData={ordersSpark} sparkColor="#8b5cf6"
+        caption={`vs ${prevYear}`} />
+      <KpiCard title="Avg Order Value" value={formatCurrency(kpis.avg_order_value)}
+        change={calcChange(yCur.revenue / yCur.orders, yPrev.revenue / yPrev.orders)}
+        icon={<CreditCard className="h-4 w-4" />}
+        sparkData={revSpark.map((r, i) => (ordersSpark[i] ? r / ordersSpark[i] : 0))}
+        sparkColor="#ec4899" caption={`vs ${prevYear}`} />
+      <KpiCard title="Profit Margin" value={`${kpis.profit_margin.toFixed(2)}%`}
+        icon={<Percent className="h-4 w-4" />}
+        sparkData={profitSpark.map((p, i) => (revSpark[i] ? (p / revSpark[i]) * 100 : 0))}
+        sparkColor="#06b6d4" caption="across 2023-2025" />
+      <KpiCard title="Unique Customers" value={formatNumber(kpis.unique_customers)}
+        icon={<Users className="h-4 w-4" />} sparkData={ordersSpark} sparkColor="#0ea5e9"
+        caption={`${formatNumber(kpis.total_orders / kpis.unique_customers, true)} orders/customer`} />
+      <KpiCard title="Avg Discount" value={`${kpis.avg_discount.toFixed(1)}%`}
+        icon={<UserCheck className="h-4 w-4" />}
+        sparkData={revSpark.map((r, i) => (ordersSpark[i] ? r / ordersSpark[i] : 0))}
+        sparkColor="#f43f5e" caption="per order avg" />
+      <KpiCard title="Total Shipping" value={formatCurrency(kpis.total_shipping, true)}
+        icon={<Truck className="h-4 w-4" />} sparkData={ordersSpark} sparkColor="#84cc16"
+        caption={`${formatCurrency(kpis.total_shipping / kpis.total_orders, true)}/order`} />
+    </div>
+  );
+}
+```
+
+---
+
+## 5. Monthly Trend Chart
+
+### 📄 [`src/components/ecommerce/monthly-trend-chart.tsx`](file:///c:/Users/manga/Downloads/archive/src/components/ecommerce/monthly-trend-chart.tsx)
+Dual-axis area chart illustrating monthly revenue and net profit over 36 months with custom gradient fills and tooltips:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig,
+} from "@/components/ui/chart";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import { monthlyData, formatCurrency } from "@/lib/ecommerce-data";
+
+const config = {
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  profit: { label: "Profit", color: "var(--chart-2)" },
+} satisfies ChartConfig;
+
+export function MonthlyTrendChart() {
+  return (
+    <Card className="col-span-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">Monthly Sales Trend (2023 – 2025)</CardTitle>
+        <CardDescription className="text-xs">
+          Revenue and profit evolution across all regions and categories
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-2">
+        <ChartContainer config={config} className="aspect-[16/6] w-full">
+          <AreaChart data={monthlyData} margin={{ left: 4, right: 12, top: 8, bottom: 0 }}>
+            <defs>
+              <linearGradient id="fillRevenue2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="fillProfit2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={10}
+              tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }} interval={2} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={6} width={48}
+              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickFormatter={(v: number) => formatCurrency(v, true)} />
+            <ChartTooltip
+              cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, name) => (
+                    <div className="flex w-full items-center justify-between gap-3">
+                      <span className="text-xs text-muted-foreground capitalize">{name}</span>
+                      <span className="font-semibold tabular-nums">
+                        {formatCurrency(Number(value), true)}
+                      </span>
+                    </div>
+                  )}
+                  labelFormatter={(label) => `Month: ${label}`}
+                />
+              }
+            />
+            <Area type="monotone" dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2.5}
+              fill="url(#fillRevenue2)" dot={false}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--background)" }} />
+            <Area type="monotone" dataKey="profit" stroke="var(--chart-2)" strokeWidth={2}
+              fill="url(#fillProfit2)" dot={false}
+              activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--background)" }} />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+---
+
+## 6. Live Orders Explorer Table
+
+### 📄 [`src/components/ecommerce/recent-orders-table.tsx`](file:///c:/Users/manga/Downloads/archive/src/components/ecommerce/recent-orders-table.tsx)
+Interactive table with client-side multi-field fuzzy search, category filter, region filter, and colored badges:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import { Search } from "lucide-react";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import {
+  recentOrders, categoryList, regionList, formatCurrency, formatNumber,
+} from "@/lib/ecommerce-data";
+
+const categoryVariant: Record<string, string> = {
+  Electronics: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-400 border-sky-200 dark:border-sky-900",
+  Clothing: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+  "Home & Kitchen": "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+  Books: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+};
+
+export function RecentOrdersTable() {
+  const [query, setQuery] = React.useState("");
+  const [catFilter, setCatFilter] = React.useState<string>("all");
+  const [regionFilter, setRegionFilter] = React.useState<string>("all");
+
+  const filtered = recentOrders.filter((o) => {
+    const q = query.toLowerCase();
+    const matches = o.id.toLowerCase().includes(q) ||
+      o.customer.toLowerCase().includes(q) ||
+      o.product.toLowerCase().includes(q) ||
+      o.country.toLowerCase().includes(q);
+    const catMatch = catFilter === "all" || o.category === catFilter;
+    const regionMatch = regionFilter === "all" || o.region === regionFilter;
+    return matches && catMatch && regionMatch;
+  });
+
+  return (
+    <Card className="col-span-full">
+      <CardHeader className="pb-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-base font-semibold">Recent Orders</CardTitle>
+            <CardDescription className="text-xs">
+              Latest 25 transactions across all regions (live-sorted by date)
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Search by order / customer / product..."
+                value={query} onChange={(e) => setQuery(e.target.value)}
+                className="h-8 w-[240px] pl-8 text-xs" />
+            </div>
+            <Select value={catFilter} onValueChange={setCatFilter}>
+              <SelectTrigger className="h-8 w-[150px] text-xs">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categoryList.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={regionFilter} onValueChange={setRegionFilter}>
+              <SelectTrigger className="h-8 w-[150px] text-xs">
+                <SelectValue placeholder="Region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                {regionList.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="max-h-[460px] overflow-y-auto rounded-md border border-border/60 [scrollbar-width:thin]">
+          <Table>
+            <TableHeader className="sticky top-0 z-10 bg-muted/40 backdrop-blur">
+              <TableRow className="border-border/60 hover:bg-transparent">
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Order ID</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Date</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Customer</TableHead>
+                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider md:table-cell">Product</TableHead>
+                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider lg:table-cell">Category</TableHead>
+                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider lg:table-cell">Region</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Qty</TableHead>
+                <TableHead className="text-right text-[11px] font-medium uppercase tracking-wider">Sales</TableHead>
+                <TableHead className="text-right text-[11px] font-medium uppercase tracking-wider">Profit</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Payment</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="py-10 text-center text-xs text-muted-foreground">
+                    No orders match your filters.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((o) => (
+                  <TableRow key={o.id} className="border-border/60 text-sm hover:bg-muted/40 transition-colors">
+                    <TableCell className="font-mono text-[11px] font-medium">{o.id}</TableCell>
+                    <TableCell className="text-[11px] tabular-nums text-muted-foreground">{o.date}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-[12px] font-medium">{o.customer}</span>
+                        <span className="text-[10px] text-muted-foreground">{o.country}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-[12px] text-muted-foreground md:table-cell">{o.product}</TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      <Badge variant="outline"
+                        className={`text-[10px] font-medium border ${categoryVariant[o.category]}`}>
+                        {o.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden text-[11px] text-muted-foreground lg:table-cell">{o.region}</TableCell>
+                    <TableCell className="text-[12px] tabular-nums">{o.quantity}</TableCell>
+                    <TableCell className="text-right text-[12px] font-medium tabular-nums">
+                      {formatCurrency(o.total_sales)}
+                    </TableCell>
+                    <TableCell className={`text-right text-[12px] font-medium tabular-nums ${
+                      o.profit < 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                      {formatCurrency(o.profit)}
+                    </TableCell>
+                    <TableCell className="text-[11px] text-muted-foreground">{o.payment_method}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="mt-2 text-right text-[10px] text-muted-foreground">
+          Showing {filtered.length} of {formatNumber(recentOrders.length)} recent orders
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+---
+
+## 7. Data Layer Types & Formatters
+
+### 📄 [`src/lib/ecommerce-data.ts`](file:///c:/Users/manga/Downloads/archive/src/lib/ecommerce-data.ts)
+TypeScript types and Intl currency/number formatting utilities:
+
+```typescript
+export type Kpis = {
+  total_sales: number;
+  total_profit: number;
+  total_orders: number;
+  avg_order_value: number;
+  avg_discount: number;
+  profit_margin: number;
+  total_shipping: number;
+  unique_customers: number;
+  negative_profit_orders: number;
+  yearly: Record<number, { revenue: number; profit: number; orders: number }>;
+};
+
+export const categoryList = ["Electronics", "Clothing", "Home & Kitchen", "Books"] as const;
+export const segmentList = ["Consumer", "Corporate", "Home Office"] as const;
+export const regionList = ["North America", "Europe", "Asia Pacific", "Latin America", "Middle East & Africa"] as const;
+
+export const formatCurrency = (value: number, compact = false) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: compact ? "compact" : "standard",
+    maximumFractionDigits: compact ? 1 : 0,
+  }).format(value);
+
+export const formatNumber = (value: number, compact = false) =>
+  new Intl.NumberFormat("en-US", {
+    notation: compact ? "compact" : "standard",
+    maximumFractionDigits: 1,
+  }).format(value);
+
+export const calcChange = (current: number, previous: number) => {
+  if (!previous || previous === 0) return 0;
+  return ((current - previous) / previous) * 100;
+};
+```
+
+---
+
+## 8. Theme Provider Component
+
+### 📄 [`src/components/theme-provider.tsx`](file:///c:/Users/manga/Downloads/archive/src/components/theme-provider.tsx)
+Next.js client wrapper for `next-themes`:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+}
+```

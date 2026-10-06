@@ -35,10 +35,17 @@ import {
 } from "@/lib/ecommerce-data";
 
 const categoryVariant: Record<string, string> = {
-  Electronics: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-400 border-sky-200 dark:border-sky-900",
-  Clothing: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-amber-200 dark:border-amber-900",
-  "Home & Kitchen": "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
-  Books: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+  Electronics: "bg-gradient-to-r from-sky-100 to-cyan-100 text-sky-700 dark:from-sky-950 dark:to-cyan-950 dark:text-sky-400 border-sky-200 dark:border-sky-900",
+  Clothing: "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-950 dark:to-orange-950 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+  "Home & Kitchen": "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+  Books: "bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 dark:from-rose-950 dark:to-pink-950 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+};
+
+const paymentVariant: Record<string, string> = {
+  "Credit Card": "from-indigo-100 to-violet-100 text-indigo-700 dark:from-indigo-950 dark:to-violet-950 dark:text-indigo-400",
+  "PayPal": "from-blue-100 to-sky-100 text-blue-700 dark:from-blue-950 dark:to-sky-950 dark:text-blue-400",
+  "Bank Transfer": "from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400",
+  "Debit Card": "from-amber-100 to-orange-100 text-amber-700 dark:from-amber-950 dark:to-orange-950 dark:text-amber-400",
 };
 
 export function RecentOrdersTable() {
@@ -72,16 +79,16 @@ export function RecentOrdersTable() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-indigo-500" />
               <Input
                 placeholder="Search by order / customer / product..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="h-8 w-[240px] pl-8 text-xs"
+                className="h-8 w-[240px] rounded-full pl-8 text-xs border-indigo-200/60 bg-gradient-to-r from-indigo-50/40 to-pink-50/40 focus-visible:ring-indigo-400"
               />
             </div>
             <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="h-8 w-[150px] text-xs">
+              <SelectTrigger className="h-8 w-[150px] rounded-full text-xs border-border/40 bg-muted/30">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -92,7 +99,7 @@ export function RecentOrdersTable() {
               </SelectContent>
             </Select>
             <Select value={regionFilter} onValueChange={setRegionFilter}>
-              <SelectTrigger className="h-8 w-[150px] text-xs">
+              <SelectTrigger className="h-8 w-[150px] rounded-full text-xs border-border/40 bg-muted/30">
                 <SelectValue placeholder="Region" />
               </SelectTrigger>
               <SelectContent>
@@ -175,8 +182,10 @@ export function RecentOrdersTable() {
                     >
                       {formatCurrency(o.profit)}
                     </TableCell>
-                    <TableCell className="text-[11px] text-muted-foreground">
-                      {o.payment_method}
+                    <TableCell className="text-[11px]">
+                      <span className={`inline-flex items-center rounded-full bg-gradient-to-r px-2 py-0.5 text-[10px] font-medium border ${paymentVariant[o.payment_method] || "from-muted to-muted text-muted-foreground"}`}>
+                        {o.payment_method}
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))

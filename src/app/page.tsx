@@ -30,25 +30,43 @@ export default function Home() {
       <DashboardHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className="flex-1 overflow-x-hidden px-4 py-5 md:px-6 lg:px-8">
-        {/* Page heading */}
-        <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
-              Global E-Commerce Sales &amp; Customer Analytics
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Interactive dashboard mirroring the EDA notebook · 2,000 transactions across 22 countries, 4 categories, 3 customer segments (2023 – 2025)
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="rounded-md border border-border/60 bg-muted/40 px-2 py-1 font-medium">
-              Last updated: {new Date().toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
+        {/* 🎨 Colorful hero banner */}
+        <div
+          className="relative overflow-hidden rounded-2xl border border-border/40 p-5 md:p-6 mb-5"
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.55 0.22 268 / 0.92) 0%, oklch(0.62 0.22 320 / 0.88) 50%, oklch(0.70 0.20 25 / 0.85) 100%)",
+          }}
+        >
+          {/* Decorative blurred orbs */}
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-yellow-300/20 blur-2xl" />
+          <div className="relative flex flex-wrap items-end justify-between gap-3">
+            <div className="text-white">
+              <div className="mb-1.5 inline-flex items-center gap-2 rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-medium backdrop-blur">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                </span>
+                Live · 2,000 transactions · 22 countries
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                Global E-Commerce Sales Analytics
+              </h1>
+              <p className="mt-1 text-sm text-white/85 max-w-2xl">
+                Interactive dashboard mirroring the EDA notebook · revenue, profit, geography, customers, and operational KPIs across 2023 – 2025
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-white/90">
+              <div className="rounded-lg bg-white/15 px-3 py-1.5 font-medium backdrop-blur">
+                Last updated: {new Date().toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
           </div>
         </div>
 

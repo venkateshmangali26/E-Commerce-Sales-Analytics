@@ -2,57 +2,37 @@
 
 import * as React from "react";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  CreditCard,
-  DollarSign,
-  Package,
-  Percent,
-  Truck,
-  UserCheck,
-  Users,
-  Wallet,
+  ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, Package,
+  Percent, Truck, UserCheck, Users, Wallet,
 } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card";
 import {
-  kpis,
-  calcChange,
-  formatCurrency,
-  formatNumber,
-  monthlyData,
+  kpis, calcChange, formatCurrency, formatNumber, monthlyData,
 } from "@/lib/ecommerce-data";
 
-function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const w = 100;
-  const h = 30;
+type SparkProps = { data: number[]; gradientId: string; stroke: string; };
+
+function Sparkline({ data, gradientId, stroke }: SparkProps) {
+  const w = 100, h = 30;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
   const step = w / Math.max(1, data.length - 1);
-  const points = data
-    .map((v, i) => `${i * step},${h - ((v - min) / range) * h}`)
-    .join(" ");
+  const points = data.map((v, i) => `${i * step},${h - ((v - min) / range) * h}`).join(" ");
+  const fillPoints = `0,${h} ${points} ${w},${h}`;
   return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      preserveAspectRatio="none"
-      className="h-8 w-full"
-      aria-hidden
-    >
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-9 w-full" aria-hidden>
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor={stroke} stopOpacity={0.55} />
+          <stop offset="95%" stopColor={stroke} stopOpacity={0.05} />
+        </linearGradient>
+      </defs>
+      <polygon points={fillPoints} fill={`url(#${gradientId})`} />
+      <polyline points={points} fill="none" stroke={stroke} strokeWidth={2.4}
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -64,27 +44,45 @@ type KpiProps = {
   icon: React.ReactNode;
   sparkData: number[];
   sparkColor: string;
+  gradient: string;
+  glow: string;
   caption?: string;
 };
 
-function KpiCard({ title, value, change, icon, sparkData, sparkColor, caption }: KpiProps) {
+function KpiCard({
+  title, value, change, icon, sparkData, sparkColor, gradient, glow, caption,
+}: KpiProps) {
   const showChange = change !== undefined;
   const isPositive = (change ?? 0) >= 0;
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-2">
+    <Card
+      className="group relative overflow-hidden border-border/40 bg-card/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+      style={{ boxShadow: "0 4px 20px -10px oklch(0.50 0.04 265 / 0.25)" }}
+    >
+      {/* Top gradient accent bar */}
+      <div
+        className="absolute inset-x-0 top-0 h-1 opacity-90"
+        style={{ background: gradient }}
+      />
+      {/* Hover glow */}
+      <div
+        className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ boxShadow: glow }}
+      />
+      <CardHeader className="pb-2 pt-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardDescription className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {title}
             </CardDescription>
-            <CardTitle className="text-xl font-semibold tracking-tight tabular-nums sm:text-2xl">
+            <CardTitle className="text-xl font-bold tracking-tight tabular-nums sm:text-2xl">
               {value}
             </CardTitle>
           </div>
+          {/* Gradient icon tile */}
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-lg"
-            style={{ backgroundColor: `${sparkColor}1a`, color: sparkColor }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+            style={{ background: gradient }}
           >
             {icon}
           </div>
@@ -94,23 +92,25 @@ function KpiCard({ title, value, change, icon, sparkData, sparkColor, caption }:
         <div className="flex items-center justify-between gap-2">
           {showChange ? (
             <div
-              className={`flex items-center gap-1 text-xs font-medium ${
-                isPositive ? "text-emerald-600" : "text-rose-600"
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                isPositive
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400"
+                  : "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400"
               }`}
             >
-              {isPositive ? (
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              ) : (
-                <ArrowDownRight className="h-3.5 w-3.5" />
-              )}
+              {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
               <span className="tabular-nums">{Math.abs(change as number).toFixed(1)}%</span>
               <span className="text-muted-foreground font-normal">{caption ?? "vs 2024"}</span>
             </div>
           ) : (
             <div className="text-xs text-muted-foreground">{caption}</div>
           )}
-          <div className="w-24">
-            <Sparkline data={sparkData} color={sparkColor} />
+          <div className="w-28">
+            <Sparkline
+              data={sparkData}
+              gradientId={`spark-${title.replace(/\s/g, "-")}`}
+              stroke={sparkColor}
+            />
           </div>
         </div>
       </CardContent>
@@ -119,13 +119,11 @@ function KpiCard({ title, value, change, icon, sparkData, sparkColor, caption }:
 }
 
 export function KpiCards() {
-  // Sparkline: last 12 months
   const recentMonthly = monthlyData.slice(-12);
   const revSpark = recentMonthly.map((m) => m.revenue);
   const profitSpark = recentMonthly.map((m) => m.profit);
   const ordersSpark = recentMonthly.map((m) => m.orders);
 
-  // YoY changes vs 2024
   const yearly = kpis.yearly;
   const years = Object.keys(yearly).map(Number).sort();
   const lastYear = years[years.length - 1] || 2025;
@@ -139,68 +137,84 @@ export function KpiCards() {
         title="Total Revenue"
         value={formatCurrency(kpis.total_sales, true)}
         change={calcChange(yCur.revenue, yPrev.revenue)}
-        icon={<DollarSign className="h-4 w-4" />}
+        icon={<DollarSign className="h-5 w-5" />}
         sparkData={revSpark}
         sparkColor="#10b981"
+        gradient="linear-gradient(135deg, #10b981 0%, #06b6d4 100%)"
+        glow="0 8px 30px -8px rgba(16, 185, 129, 0.45)"
         caption={`vs ${prevYear}`}
       />
       <KpiCard
         title="Net Profit"
         value={formatCurrency(kpis.total_profit, true)}
         change={calcChange(yCur.profit, yPrev.profit)}
-        icon={<Wallet className="h-4 w-4" />}
+        icon={<Wallet className="h-5 w-5" />}
         sparkData={profitSpark}
         sparkColor="#f59e0b"
+        gradient="linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)"
+        glow="0 8px 30px -8px rgba(245, 158, 11, 0.45)"
         caption={`vs ${prevYear}`}
       />
       <KpiCard
         title="Total Orders"
         value={formatNumber(kpis.total_orders)}
         change={calcChange(yCur.orders, yPrev.orders)}
-        icon={<Package className="h-4 w-4" />}
+        icon={<Package className="h-5 w-5" />}
         sparkData={ordersSpark}
         sparkColor="#8b5cf6"
+        gradient="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
+        glow="0 8px 30px -8px rgba(99, 102, 241, 0.45)"
         caption={`vs ${prevYear}`}
       />
       <KpiCard
         title="Avg Order Value"
         value={formatCurrency(kpis.avg_order_value)}
         change={calcChange(yCur.revenue / yCur.orders, yPrev.revenue / yPrev.orders)}
-        icon={<CreditCard className="h-4 w-4" />}
+        icon={<CreditCard className="h-5 w-5" />}
         sparkData={revSpark.map((r, i) => (ordersSpark[i] ? r / ordersSpark[i] : 0))}
         sparkColor="#ec4899"
+        gradient="linear-gradient(135deg, #ec4899 0%, #6366f1 100%)"
+        glow="0 8px 30px -8px rgba(236, 72, 153, 0.45)"
         caption={`vs ${prevYear}`}
       />
       <KpiCard
         title="Profit Margin"
         value={`${kpis.profit_margin.toFixed(2)}%`}
-        icon={<Percent className="h-4 w-4" />}
+        icon={<Percent className="h-5 w-5" />}
         sparkData={profitSpark.map((p, i) => (revSpark[i] ? (p / revSpark[i]) * 100 : 0))}
         sparkColor="#06b6d4"
+        gradient="linear-gradient(135deg, #06b6d4 0%, #6366f1 100%)"
+        glow="0 8px 30px -8px rgba(6, 182, 212, 0.45)"
         caption="across 2023-2025"
       />
       <KpiCard
         title="Unique Customers"
         value={formatNumber(kpis.unique_customers)}
-        icon={<Users className="h-4 w-4" />}
+        icon={<Users className="h-5 w-5" />}
         sparkData={ordersSpark}
         sparkColor="#0ea5e9"
+        gradient="linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)"
+        glow="0 8px 30px -8px rgba(14, 165, 233, 0.45)"
         caption={`${formatNumber(kpis.total_orders / kpis.unique_customers, true)} orders/customer`}
       />
       <KpiCard
         title="Avg Discount"
         value={`${kpis.avg_discount.toFixed(1)}%`}
-        icon={<UserCheck className="h-4 w-4" />}
+        icon={<UserCheck className="h-5 w-5" />}
         sparkData={revSpark.map((r, i) => (ordersSpark[i] ? r / ordersSpark[i] : 0))}
         sparkColor="#f43f5e"
+        gradient="linear-gradient(135deg, #f43f5e 0%, #ec4899 100%)"
+        glow="0 8px 30px -8px rgba(244, 63, 94, 0.45)"
         caption="per order avg"
       />
       <KpiCard
         title="Total Shipping"
         value={formatCurrency(kpis.total_shipping, true)}
-        icon={<Truck className="h-4 w-4" />}
+        icon={<Truck className="h-5 w-5" />}
         sparkData={ordersSpark}
         sparkColor="#84cc16"
+        gradient="linear-gradient(135deg, #84cc16 0%, #f59e0b 100%)"
+        glow="0 8px 30px -8px rgba(132, 204, 22, 0.45)"
         caption={`${formatCurrency(kpis.total_shipping / kpis.total_orders, true)}/order`}
       />
     </div>
