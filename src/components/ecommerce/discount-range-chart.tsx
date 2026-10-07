@@ -51,27 +51,27 @@ export function DiscountRangeChart() {
           Avg revenue, profit, and margin across discount buckets
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/9] w-full">
+      <CardContent className="p-2 sm:p-4 pt-2">
+        <ChartContainer config={config} className="h-[240px] xs:h-[260px] sm:h-[300px] w-full">
           <BarChart
             data={discountRangeData}
-            margin={{ left: 4, right: 8, top: 8, bottom: 0 }}
+            margin={{ left: -10, right: 8, top: 8, bottom: 0 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="range"
               tickLine={false}
               axisLine={false}
-              tickMargin={10}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={8}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
             />
             <YAxis
               yAxisId="left"
               tickLine={false}
               axisLine={false}
-              tickMargin={6}
-              width={48}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={4}
+              width={42}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => formatCurrency(v, true)}
             />
             <ChartTooltip

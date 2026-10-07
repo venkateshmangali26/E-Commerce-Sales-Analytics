@@ -49,19 +49,19 @@ export function CountryChart() {
           Top markets across 22 countries, colored by region
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/14] w-full">
+      <CardContent className="p-2 sm:p-4 pt-2">
+        <ChartContainer config={config} className="h-[520px] sm:h-[580px] w-full">
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ left: 4, right: 16, top: 4, bottom: 4 }}
+            margin={{ left: -10, right: 12, top: 4, bottom: 4 }}
           >
             <XAxis
               type="number"
               tickLine={false}
               axisLine={false}
               tickMargin={6}
-              tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => formatCurrency(v, true)}
             />
             <YAxis
@@ -69,8 +69,11 @@ export function CountryChart() {
               dataKey="country"
               tickLine={false}
               axisLine={false}
-              width={140}
-              tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+              width={98}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+              tickFormatter={(v: string) =>
+                v.length > 14 ? `${v.slice(0, 13)}…` : v
+              }
             />
             <ChartTooltip
               cursor={{ fill: "var(--muted)", opacity: 0.4 }}

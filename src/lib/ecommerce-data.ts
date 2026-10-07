@@ -216,86 +216,86 @@ export const monthlyData = [
   {
     "year_month": "2025-01",
     "label": "Jan 2025",
-    "revenue": 8578.79,
-    "profit": 1066.57,
-    "orders": 28
+    "revenue": 12755.16,
+    "profit": 2122.77,
+    "orders": 39
   },
   {
     "year_month": "2025-02",
     "label": "Feb 2025",
-    "revenue": 12651.51,
-    "profit": 1726.73,
-    "orders": 47
+    "revenue": 8966.9,
+    "profit": 1469.91,
+    "orders": 34
   },
   {
     "year_month": "2025-03",
     "label": "Mar 2025",
-    "revenue": 9462.91,
-    "profit": 1593.95,
-    "orders": 48
+    "revenue": 14589.97,
+    "profit": 2734.73,
+    "orders": 49
   },
   {
     "year_month": "2025-04",
     "label": "Apr 2025",
-    "revenue": 16680.62,
-    "profit": 3126.32,
-    "orders": 58
+    "revenue": 12292.9,
+    "profit": 2013.22,
+    "orders": 57
   },
   {
     "year_month": "2025-05",
     "label": "May 2025",
-    "revenue": 13483.09,
-    "profit": 1893.96,
-    "orders": 50
+    "revenue": 10768.25,
+    "profit": 1812.66,
+    "orders": 45
   },
   {
     "year_month": "2025-06",
     "label": "Jun 2025",
-    "revenue": 15087.7,
-    "profit": 2057.62,
-    "orders": 52
+    "revenue": 13403.23,
+    "profit": 2296.36,
+    "orders": 51
   },
   {
     "year_month": "2025-07",
     "label": "Jul 2025",
-    "revenue": 10669.14,
-    "profit": 1507.34,
-    "orders": 50
+    "revenue": 12301.55,
+    "profit": 998.9,
+    "orders": 52
   },
   {
     "year_month": "2025-08",
     "label": "Aug 2025",
-    "revenue": 10065.6,
-    "profit": 1168.62,
-    "orders": 49
+    "revenue": 11387.2,
+    "profit": 2205.51,
+    "orders": 44
   },
   {
     "year_month": "2025-09",
     "label": "Sep 2025",
-    "revenue": 14758.49,
-    "profit": 2371.27,
-    "orders": 55
+    "revenue": 12536.15,
+    "profit": 1937.97,
+    "orders": 48
   },
   {
     "year_month": "2025-10",
     "label": "Oct 2025",
-    "revenue": 19020.77,
-    "profit": 3835.18,
-    "orders": 65
+    "revenue": 17331.86,
+    "profit": 2903.2,
+    "orders": 63
   },
   {
     "year_month": "2025-11",
     "label": "Nov 2025",
-    "revenue": 15468.88,
-    "profit": 2605.4,
-    "orders": 59
+    "revenue": 17984.02,
+    "profit": 3219.11,
+    "orders": 55
   },
   {
     "year_month": "2025-12",
     "label": "Dec 2025",
-    "revenue": 22089.17,
-    "profit": 3419.63,
-    "orders": 88
+    "revenue": 34244,
+    "profit": 5596.37,
+    "orders": 99
   }
 ];
 
@@ -324,62 +324,62 @@ export const heatmapData = [
   {
     "year": 2023,
     "quarter": "Q1",
-    "revenue": 37247.12
+    "revenue": 36250.18
   },
   {
     "year": 2023,
     "quarter": "Q2",
-    "revenue": 44875.08
+    "revenue": 48293.78
   },
   {
     "year": 2023,
     "quarter": "Q3",
-    "revenue": 46171.44
+    "revenue": 47307.36
   },
   {
     "year": 2023,
     "quarter": "Q4",
-    "revenue": 65027.17
+    "revenue": 51489.55
   },
   {
     "year": 2024,
     "quarter": "Q1",
-    "revenue": 34362.49
+    "revenue": 36610.07
   },
   {
     "year": 2024,
     "quarter": "Q2",
-    "revenue": 42269.19
+    "revenue": 51134.25
   },
   {
     "year": 2024,
     "quarter": "Q3",
-    "revenue": 40101.0
+    "revenue": 45415.14
   },
   {
     "year": 2024,
     "quarter": "Q4",
-    "revenue": 62849.36
+    "revenue": 57753.38
   },
   {
     "year": 2025,
     "quarter": "Q1",
-    "revenue": 30693.21
+    "revenue": 36312.03
   },
   {
     "year": 2025,
     "quarter": "Q2",
-    "revenue": 45251.41
+    "revenue": 36464.38
   },
   {
     "year": 2025,
     "quarter": "Q3",
-    "revenue": 35493.23
+    "revenue": 36224.9
   },
   {
     "year": 2025,
     "quarter": "Q4",
-    "revenue": 56578.82
+    "revenue": 69559.88
   }
 ];
 
@@ -591,43 +591,47 @@ export const countryData = [
 export const categoryData = [
   {
     "category": "Electronics",
-    "revenue": 334085.78,
-    "profit": 34155.22,
-    "orders": 780,
+    "revenue": 341266.25,
+    "profit": 35596.8,
+    "orders": 801,
     "units": 1603,
     "avg_price": 231.1,
     "avg_discount": 9.22,
-    "profit_margin": 10.2
+    "profit_margin": 10.43,
+    "share": 61.7
   },
   {
     "category": "Clothing",
-    "revenue": 131326.88,
-    "profit": 37743.27,
-    "orders": 564,
+    "revenue": 131225.08,
+    "profit": 38565.44,
+    "orders": 531,
     "units": 1110,
     "avg_price": 129.18,
     "avg_discount": 8.6,
-    "profit_margin": 28.7
+    "profit_margin": 29.39,
+    "share": 23.7
   },
   {
     "category": "Home & Kitchen",
-    "revenue": 62569.82,
-    "profit": 10081.11,
-    "orders": 403,
+    "revenue": 68085.67,
+    "profit": 11276.5,
+    "orders": 424,
     "units": 818,
     "avg_price": 85.23,
     "avg_discount": 8.68,
-    "profit_margin": 16.1
+    "profit_margin": 16.56,
+    "share": 12.3
   },
   {
     "category": "Books",
-    "revenue": 12937.04,
-    "profit": 2174.46,
-    "orders": 253,
+    "revenue": 12237.9,
+    "profit": 1978.88,
+    "orders": 244,
     "units": 523,
     "avg_price": 27.33,
     "avg_discount": 9.21,
-    "profit_margin": 16.8
+    "profit_margin": 16.17,
+    "share": 2.2
   }
 ];
 
@@ -635,112 +639,115 @@ export const topProductsData = [
   {
     "product": "Nimbus Tablet 10.4",
     "category": "Electronics",
-    "revenue": 94983.95,
-    "profit": 10325.46,
-    "units": 252,
-    "orders": 131
+    "revenue": 91269.9,
+    "profit": 11068.66,
+    "units": 247,
+    "orders": 247
   },
   {
     "product": "Horizon 4K Action Camera",
     "category": "Electronics",
-    "revenue": 65457.47,
-    "profit": 7715.42,
-    "units": 218,
-    "orders": 101
-  },
-  {
-    "product": "Vertex Stainless Smartwatch",
-    "category": "Electronics",
-    "revenue": 58397.72,
-    "profit": 6258.44,
-    "units": 257,
-    "orders": 126
+    "revenue": 75316.35,
+    "profit": 8926.18,
+    "units": 249,
+    "orders": 249
   },
   {
     "product": "Alpine Down Jacket",
     "category": "Clothing",
-    "revenue": 47875.73,
-    "profit": 15636.56,
-    "units": 183,
-    "orders": 92
+    "revenue": 51314.5,
+    "profit": 17297.05,
+    "units": 200,
+    "orders": 200
+  },
+  {
+    "product": "Vertex Stainless Smartwatch",
+    "category": "Electronics",
+    "revenue": 47393.17,
+    "profit": 4540.37,
+    "units": 211,
+    "orders": 211
   },
   {
     "product": "Aurora Wireless Earbuds Pro",
     "category": "Electronics",
-    "revenue": 41553.38,
-    "profit": 4525.48,
-    "units": 226,
-    "orders": 114
+    "revenue": 44898.57,
+    "profit": 4840.25,
+    "units": 242,
+    "orders": 242
   },
   {
     "product": "Pulse Fitness Tracker X",
     "category": "Electronics",
-    "revenue": 32072.21,
-    "profit": 3425.45,
-    "units": 217,
-    "orders": 100
+    "revenue": 37099.31,
+    "profit": 3500.65,
+    "units": 247,
+    "orders": 247
   },
   {
     "product": "Verde Ceramic Cookware Set",
     "category": "Home & Kitchen",
-    "revenue": 24864.86,
-    "profit": 5352.69,
-    "units": 127,
-    "orders": 65
-  },
-  {
-    "product": "Vortex Running Shoes",
-    "category": "Clothing",
-    "revenue": 21942.34,
-    "profit": 6039.71,
-    "units": 219,
-    "orders": 113
+    "revenue": 30844.39,
+    "profit": 6982.77,
+    "units": 147,
+    "orders": 147
   },
   {
     "product": "Echo Bluetooth Speaker",
     "category": "Electronics",
-    "revenue": 21534.77,
-    "profit": 1418.65,
-    "units": 184,
-    "orders": 89
+    "revenue": 27077.32,
+    "profit": 1887.08,
+    "units": 227,
+    "orders": 227
   },
   {
-    "product": "Heritage Denim Jacket",
+    "product": "Summit Trekking Backpack",
     "category": "Clothing",
-    "revenue": 20951.92,
-    "profit": 6126.37,
-    "units": 166,
-    "orders": 85
+    "revenue": 21782.26,
+    "profit": 6353.12,
+    "units": 184,
+    "orders": 184
+  },
+  {
+    "product": "Vortex Running Shoes",
+    "category": "Clothing",
+    "revenue": 20654.76,
+    "profit": 5676.01,
+    "units": 206,
+    "orders": 206
   }
 ];
 
 export const segmentData = [
   {
     "segment": "Consumer",
-    "revenue": 313773.47,
-    "profit": 54875.9,
-    "orders": 1097,
-    "avg_order_value": 286.03,
-    "avg_discount": 6.67,
-    "profit_margin": 17.5
+    "revenue": 320114.97,
+    "profit": 55904.59,
+    "orders": 1089,
+    "avg_order_value": 293.95,
+    "avg_discount": 6.53,
+    "profit_margin": 17.5,
+    "share": 54.5
   },
   {
     "segment": "Corporate",
-    "revenue": 153276.06,
-    "profit": 18100.41,
-    "orders": 622,
-    "avg_order_value": 246.42,
-    "avg_discount": 12.92,
-    "profit_margin": 11.8
+    "revenue": 143460.84,
+    "profit": 16905.78,
+    "orders": 572,
+    "avg_order_value": 250.81,
+    "avg_discount": 13.47,
+    "profit_margin": 11.8,
+    "share": 28.6
   },
   {
     "segment": "Home Office",
-    "revenue": 73869.99,
-    "profit": 11177.75,
-    "orders": 281,
-    "avg_order_value": 262.88,
-    "avg_discount": 8.95,
-    "profit_margin": 15.1
+    "revenue": 89239.09,
+    "profit": 14607.25,
+    "orders": 339,
+    "avg_order_value": 263.24,
+    "avg_discount": 8.47,
+    "profit_margin": 16.4,
+    "share": 16.9
   }
 ];
 
@@ -748,28 +755,28 @@ export const segmentCategoryData = [
   {
     "segment": "Consumer",
     "values": {
-      "Electronics": 194856.94,
-      "Clothing": 76604.6,
-      "Home & Kitchen": 35326.68,
-      "Books": 6985.25
+      "Books": 6513.91,
+      "Clothing": 69274.21,
+      "Electronics": 206007.29,
+      "Home & Kitchen": 38319.56
     }
   },
   {
     "segment": "Corporate",
     "values": {
-      "Electronics": 91746.82,
-      "Clothing": 39628.92,
-      "Home & Kitchen": 18286.47,
-      "Books": 3613.85
+      "Books": 3634.31,
+      "Clothing": 38586.47,
+      "Electronics": 83643.82,
+      "Home & Kitchen": 17596.24
     }
   },
   {
     "segment": "Home Office",
     "values": {
-      "Electronics": 47482.02,
-      "Clothing": 15093.36,
-      "Home & Kitchen": 8956.67,
-      "Books": 2337.94
+      "Books": 2089.68,
+      "Clothing": 23364.4,
+      "Electronics": 51615.14,
+      "Home & Kitchen": 12169.87
     }
   }
 ];
@@ -2211,31 +2218,31 @@ export const discountRangeData = [
 export const paymentData = [
   {
     "method": "Credit Card",
-    "orders": 1070,
-    "revenue": 294619.24,
-    "share": 53.5,
-    "avg_order": 275.35
+    "orders": 1145,
+    "revenue": 317701.56,
+    "share": 57.2,
+    "avg_order": 277.47
   },
   {
     "method": "PayPal",
-    "orders": 514,
-    "revenue": 136680.68,
-    "share": 25.7,
-    "avg_order": 265.92
+    "orders": 493,
+    "revenue": 126899.54,
+    "share": 24.6,
+    "avg_order": 257.4
   },
   {
     "method": "Bank Transfer",
-    "orders": 245,
-    "revenue": 64117.88,
-    "share": 12.2,
-    "avg_order": 261.71
+    "orders": 217,
+    "revenue": 67411.75,
+    "share": 10.8,
+    "avg_order": 310.65
   },
   {
     "method": "Debit Card",
-    "orders": 171,
-    "revenue": 45501.72,
-    "share": 8.6,
-    "avg_order": 266.09
+    "orders": 145,
+    "revenue": 40802.05,
+    "share": 7.2,
+    "avg_order": 281.39
   }
 ];
 
@@ -2271,72 +2278,56 @@ export const correlationMatrix = [
   {
     "feature": "Quantity",
     "Quantity": 1.0,
-    "Unit_Price": -0.01,
-    "Discount_Percent": -0.03,
-    "Total_Sales": 0.54,
-    "Shipping_Cost": -0.03,
-    "Profit": 0.55,
-    "Profit_Margin": 0.41
+    "Unit_Price": 0.03,
+    "Discount_Percent": -0.02,
+    "Total_Sales": 0.58,
+    "Shipping_Cost": -0.01,
+    "Profit": 0.55
   },
   {
     "feature": "Unit_Price",
-    "Quantity": -0.01,
+    "Quantity": 0.03,
     "Unit_Price": 1.0,
-    "Discount_Percent": 0.04,
+    "Discount_Percent": -0.01,
     "Total_Sales": 0.71,
-    "Shipping_Cost": -0.01,
-    "Profit": 0.44,
-    "Profit_Margin": 0.18
+    "Shipping_Cost": 0.07,
+    "Profit": 0.46
   },
   {
     "feature": "Discount_Percent",
-    "Quantity": -0.03,
-    "Unit_Price": 0.04,
+    "Quantity": -0.02,
+    "Unit_Price": -0.01,
     "Discount_Percent": 1.0,
-    "Total_Sales": -0.07,
-    "Shipping_Cost": -0.01,
-    "Profit": -0.3,
-    "Profit_Margin": -0.38
+    "Total_Sales": -0.09,
+    "Shipping_Cost": 0.01,
+    "Profit": -0.31
   },
   {
     "feature": "Total_Sales",
-    "Quantity": 0.54,
+    "Quantity": 0.58,
     "Unit_Price": 0.71,
-    "Discount_Percent": -0.07,
+    "Discount_Percent": -0.09,
     "Total_Sales": 1.0,
-    "Shipping_Cost": -0.04,
-    "Profit": 0.79,
-    "Profit_Margin": 0.28
+    "Shipping_Cost": 0.05,
+    "Profit": 0.78
   },
   {
     "feature": "Shipping_Cost",
-    "Quantity": -0.03,
-    "Unit_Price": -0.01,
-    "Discount_Percent": -0.01,
-    "Total_Sales": -0.04,
+    "Quantity": -0.01,
+    "Unit_Price": 0.07,
+    "Discount_Percent": 0.01,
+    "Total_Sales": 0.05,
     "Shipping_Cost": 1.0,
-    "Profit": -0.12,
-    "Profit_Margin": -0.27
+    "Profit": -0.03
   },
   {
     "feature": "Profit",
     "Quantity": 0.55,
-    "Unit_Price": 0.44,
-    "Discount_Percent": -0.3,
-    "Total_Sales": 0.79,
-    "Shipping_Cost": -0.12,
-    "Profit": 1.0,
-    "Profit_Margin": 0.55
-  },
-  {
-    "feature": "Profit_Margin",
-    "Quantity": 0.41,
-    "Unit_Price": 0.18,
-    "Discount_Percent": -0.38,
-    "Total_Sales": 0.28,
-    "Shipping_Cost": -0.27,
-    "Profit": 0.55,
-    "Profit_Margin": 1.0
+    "Unit_Price": 0.46,
+    "Discount_Percent": -0.31,
+    "Total_Sales": 0.78,
+    "Shipping_Cost": -0.03,
+    "Profit": 1.0
   }
 ];
 
@@ -2346,45 +2337,51 @@ export const correlationFeatures = [
   "Discount_Percent",
   "Total_Sales",
   "Shipping_Cost",
-  "Profit",
-  "Profit_Margin"
+  "Profit"
 ];
 
 export const dowData = [
   {
-    "day": "Monday",
-    "orders": 318,
-    "avg_revenue": 269.97
-  },
-  {
-    "day": "Tuesday",
-    "orders": 267,
-    "avg_revenue": 276.59
-  },
-  {
-    "day": "Wednesday",
-    "orders": 296,
-    "avg_revenue": 266.1
-  },
-  {
-    "day": "Thursday",
-    "orders": 300,
-    "avg_revenue": 280.41
-  },
-  {
-    "day": "Friday",
-    "orders": 259,
-    "avg_revenue": 244.69
-  },
-  {
-    "day": "Saturday",
+    "day": "Sun",
     "orders": 274,
-    "avg_revenue": 270.23
+    "revenue": 66656.96,
+    "avg_revenue": 243.27
   },
   {
-    "day": "Sunday",
-    "orders": 286,
-    "avg_revenue": 282.92
+    "day": "Mon",
+    "orders": 299,
+    "revenue": 88002.38,
+    "avg_revenue": 294.32
+  },
+  {
+    "day": "Tue",
+    "orders": 269,
+    "revenue": 77420.27,
+    "avg_revenue": 287.81
+  },
+  {
+    "day": "Wed",
+    "orders": 293,
+    "revenue": 82829.73,
+    "avg_revenue": 282.7
+  },
+  {
+    "day": "Thu",
+    "orders": 300,
+    "revenue": 75657.26,
+    "avg_revenue": 252.19
+  },
+  {
+    "day": "Fri",
+    "orders": 268,
+    "revenue": 80928.75,
+    "avg_revenue": 301.97
+  },
+  {
+    "day": "Sat",
+    "orders": 297,
+    "revenue": 81319.55,
+    "avg_revenue": 273.8
   }
 ];
 

@@ -55,10 +55,10 @@ export function DiscountScatterChart() {
           Bubble size = total sales; reveals the profitability floor of high discounts
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/8] w-full">
+      <CardContent className="p-2 sm:p-4 pt-2">
+        <ChartContainer config={config} className="h-[260px] xs:h-[280px] sm:h-[320px] lg:h-[360px] w-full">
           <ScatterChart
-            margin={{ left: 4, right: 12, top: 8, bottom: 4 }}
+            margin={{ left: -10, right: 8, top: 8, bottom: 4 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
@@ -69,7 +69,7 @@ export function DiscountScatterChart() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => `${v.toFixed(0)}%`}
             />
             <YAxis
@@ -79,9 +79,9 @@ export function DiscountScatterChart() {
               domain={[-100, 80]}
               tickLine={false}
               axisLine={false}
-              tickMargin={6}
-              width={48}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={4}
+              width={40}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => `${v.toFixed(0)}%`}
             />
             <ZAxis

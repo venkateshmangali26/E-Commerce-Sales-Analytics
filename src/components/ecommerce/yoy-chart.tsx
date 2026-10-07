@@ -43,28 +43,28 @@ export function YoyComparisonChart() {
           Annual performance comparison across the 3-year window
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/9] w-full">
+      <CardContent className="p-2 sm:p-4 pt-2">
+        <ChartContainer config={config} className="h-[240px] xs:h-[260px] sm:h-[300px] w-full">
           <BarChart
             data={yoyData}
-            margin={{ left: 4, right: 8, top: 8, bottom: 0 }}
+            margin={{ left: -10, right: -5, top: 8, bottom: 0 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="year"
               tickLine={false}
               axisLine={false}
-              tickMargin={10}
-              tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+              tickMargin={8}
+              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => String(v)}
             />
             <YAxis
               yAxisId="left"
               tickLine={false}
               axisLine={false}
-              tickMargin={6}
-              width={52}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={4}
+              width={42}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => formatCurrency(v, true)}
             />
             <YAxis
@@ -72,9 +72,9 @@ export function YoyComparisonChart() {
               orientation="right"
               tickLine={false}
               axisLine={false}
-              tickMargin={6}
-              width={44}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={4}
+              width={34}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => formatNumber(v, true)}
             />
             <ChartTooltip

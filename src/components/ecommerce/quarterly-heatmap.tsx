@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -13,106 +12,143 @@ import { heatmapData, formatCurrency } from "@/lib/ecommerce-data";
 const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
 const YEARS = [2023, 2024, 2025];
 
-// YlOrRd-like palette: returns a 6-digit hex with alpha
-function colorFor(value: number, max: number): string {
-  if (max === 0 || value === 0) return "rgba(0,0,0,0.04)";
-  const t = value / max;
-  // From light yellow (#fff7bc) to deep red (#b10026)
-  const r = Math.round(255 - (255 - 177) * t);
-  const g = Math.round(247 - (247 - 0) * t);
-  const b = Math.round(188 - (188 - 38) * t);
-  return `rgba(${r},${g},${b},${0.15 + t * 0.85})`;
+// Custom gradient interpolation matching Image 4
+// Domain from ~36,000 (light periwinkle #edf1fc) -> ~50,000 (blue #6376e3) -> ~58,000 (purple #8953d6) -> ~70,000 (magenta/pink #ec407a)
+function getHeatmapColor(revenue: number): string {
+  // Normalize between 36,000 and 70,000
+  const min = 36000;
+  const max = 70000;
+  const t = Math.max(0, Math.min(1, (revenue - min) / (max - min)));
+
+  if (t < 0.4) {
+    // 36K to ~50K: Light periwinkle (237, 241, 252) -> Blue (99, 118, 227)
+    const k = t / 0.4;
+    const r = Math.round(237 + (99 - 237) * k);
+    const g = Math.round(241 + (118 - 241) * k);
+    const b = Math.round(252 + (227 - 252) * k);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else if (t < 0.7) {
+    // 50K to ~60K: Blue (99, 118, 227) -> Purple (137, 83, 214)
+    const k = (t - 0.4) / 0.3;
+    const r = Math.round(99 + (137 - 99) * k);
+    const g = Math.round(118 + (83 - 118) * k);
+    const b = Math.round(227 + (214 - 227) * k);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    // 60K to 70K: Purple (137, 83, 214) -> Magenta/Pink (236, 64, 122)
+    const k = (t - 0.7) / 0.3;
+    const r = Math.round(137 + (236 - 137) * k);
+    const g = Math.round(83 + (64 - 83) * k);
+    const b = Math.round(214 + (122 - 214) * k);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
 }
 
+function getTextColor(revenue: number): string {
+  // Dark text on the light 36K cells, white text on the darker 45K+ cells
+  return revenue >= 45000 ? "#ffffff" : "#1e293b";
+}
+
+const COLORBAR_TICKS = ["$70K", "$65K", "$60K", "$55K", "$50K", "$45K", "$40K", "$35K"];
+
 export function QuarterlyHeatmap() {
-  const cellMap = new Map<string, number>();
-  let max = 0;
-  heatmapData.forEach((d) => {
-    cellMap.set(`${d.year}-${d.quarter}`, d.revenue);
-    max = Math.max(max, d.revenue);
-  });
+  const cellMap = React.useMemo(() => {
+    const map = new Map<string, number>();
+    heatmapData.forEach((d) => {
+      map.set(`${d.year}-${d.quarter}`, d.revenue);
+    });
+    return map;
+  }, []);
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
-          Revenue Heatmap by Year &amp; Quarter
+    <Card className="border border-border/60 shadow-sm transition-all hover:shadow-md">
+      <CardHeader className="pb-1 pt-4 text-center">
+        <CardTitle className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+          Quarterly Revenue Heatmap
         </CardTitle>
-        <CardDescription className="text-xs">
-          Quarterly seasonality — Q4 holiday peaks visible
-        </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-1 text-center text-xs">
-            <thead>
-              <tr>
-                <th className="h-8 w-16 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Year
-                </th>
-                {QUARTERS.map((q) => (
-                  <th
-                    key={q}
-                    className="h-8 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
-                  >
-                    {q}
-                  </th>
-                ))}
-                <th className="h-8 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {YEARS.map((y) => {
-                const rowTotal = QUARTERS.reduce(
-                  (s, q) => s + (cellMap.get(`${y}-${q}`) || 0),
-                  0
-                );
-                return (
-                  <tr key={y}>
-                    <td className="h-12 text-left text-xs font-medium">{y}</td>
-                    {QUARTERS.map((q) => {
-                      const v = cellMap.get(`${y}-${q}`) || 0;
-                      return (
-                        <td key={q} className="p-0">
+      <CardContent className="p-2 sm:p-6 pt-2">
+        <div className="overflow-x-auto [scrollbar-width:thin] touch-pan-x -webkit-overflow-scrolling-touch pb-4">
+          <div className="min-w-[540px] max-w-[760px] mx-auto flex items-start justify-center gap-6 sm:gap-8 pt-2">
+            {/* Heatmap Grid */}
+            <div className="flex flex-col flex-1 max-w-[620px]">
+              {/* Rows */}
+              <div className="flex flex-col gap-1.5">
+                {YEARS.map((y) => (
+                  <div key={y} className="flex items-center gap-1.5">
+                    {/* Y-axis: Year */}
+                    <div className="w-16 sm:w-20 pr-3 text-right text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      {y}
+                    </div>
+
+                    {/* Quarter Cells */}
+                    <div className="grid grid-cols-4 gap-1.5 flex-1">
+                      {QUARTERS.map((q) => {
+                        const rev = cellMap.get(`${y}-${q}`) || 0;
+                        const bg = getHeatmapColor(rev);
+                        const textColor = getTextColor(rev);
+                        const label = `$${Math.round(rev / 1000)}K`;
+
+                        return (
                           <div
-                            className="flex h-12 flex-col items-center justify-center rounded-md transition-colors"
-                            style={{ backgroundColor: colorFor(v, max) }}
-                            title={`${y} ${q}: ${formatCurrency(v, true)}`}
+                            key={q}
+                            className="flex h-16 sm:h-20 items-center justify-center rounded-xs transition-transform hover:scale-[1.02] shadow-2xs"
+                            style={{
+                              backgroundColor: bg,
+                              color: textColor,
+                            }}
+                            title={`${y} ${q}: ${formatCurrency(rev, true)}`}
                           >
-                            <span className="text-xs font-semibold tabular-nums text-foreground">
-                              {formatCurrency(v, true)}
+                            <span className="text-xs sm:text-sm font-semibold tabular-nums">
+                              {label}
                             </span>
                           </div>
-                        </td>
-                      );
-                    })}
-                    <td className="h-12 px-2">
-                      <div className="flex h-full items-center justify-center rounded-md border border-border/60 bg-muted/40">
-                        <span className="text-xs font-semibold tabular-nums">
-                          {formatCurrency(rowTotal, true)}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-3 flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
-          <span>Low</span>
-          <div className="flex h-2 w-32 overflow-hidden rounded-full">
-            {[0.1, 0.3, 0.5, 0.7, 0.9].map((t) => (
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* X-axis: Quarters at bottom matching Image 4 */}
+              <div className="flex items-center pl-16 sm:pl-20 pt-3">
+                <div className="grid grid-cols-4 gap-1.5 flex-1 text-center">
+                  {QUARTERS.map((q) => (
+                    <div
+                      key={q}
+                      className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300"
+                    >
+                      {q}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Vertical Colorbar on the Right matching Image 4 */}
+            <div className="flex items-stretch gap-2.5 pt-0.5">
+              {/* Gradient Strip: Matches getHeatmapColor exact color stops and matrix height (3 rows = 204px / 252px) */}
               <div
-                key={t}
-                className="flex-1"
-                style={{ backgroundColor: colorFor(t * max, max) }}
+                className="w-3.5 sm:w-4 rounded-xs shadow-inner h-[204px] sm:h-[252px]"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, #ec407a 0%, #8953d6 30%, #6376e3 60%, #edf1fc 100%)",
+                }}
               />
-            ))}
+
+              {/* Ticks and Labels: Bounded to full $35K-$70K range with proper tick notches */}
+              <div
+                className="flex flex-col justify-between text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 select-none py-0.5 h-[204px] sm:h-[252px]"
+              >
+                {COLORBAR_TICKS.map((tick) => (
+                  <div key={tick} className="flex items-center gap-1.5 leading-none">
+                    <span className="h-[1px] w-1.5 sm:w-2 bg-slate-400 dark:bg-slate-500 shrink-0" aria-hidden="true" />
+                    <span className="tabular-nums">{tick}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <span>High</span>
         </div>
       </CardContent>
     </Card>

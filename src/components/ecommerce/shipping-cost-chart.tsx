@@ -46,29 +46,29 @@ export function ShippingCostChart() {
           Color encodes average profit margin — logistics impact on profitability
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/9] w-full">
+      <CardContent className="p-2 sm:p-4 pt-2">
+        <ChartContainer config={config} className="h-[240px] xs:h-[260px] sm:h-[300px] w-full">
           <BarChart
             data={shippingData}
-            margin={{ left: 4, right: 16, top: 8, bottom: 0 }}
+            margin={{ left: -10, right: 8, top: 8, bottom: 0 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="region"
               tickLine={false}
               axisLine={false}
-              tickMargin={10}
-              tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+              tickMargin={8}
+              tick={{ fontSize: 9.5, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: string) =>
-                v.length > 14 ? `${v.slice(0, 13)}…` : v
+                v.length > 11 ? `${v.slice(0, 10)}…` : v
               }
             />
             <YAxis
               tickLine={false}
               axisLine={false}
-              tickMargin={6}
-              width={44}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+              tickMargin={4}
+              width={38}
+              tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               tickFormatter={(v: number) => `$${v.toFixed(0)}`}
             />
             <ChartTooltip

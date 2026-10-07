@@ -498,8 +498,8 @@ export function computeAnalytics(orders: Order[]): AnalyticsPayload {
     corrCols.Profit.push(o.profit);
     corrCols.Profit_Margin.push(o.totalSales > 0 ? (o.profit / o.totalSales) * 100 : 0);
   }
-  const correlation = CORR_FEATURES.map((a) => {
-    const row: Record<string, string | number> = { feature: a };
+  const correlation: AnalyticsPayload["correlation"] = CORR_FEATURES.map((a) => {
+    const row: AnalyticsPayload["correlation"][number] = { feature: a };
     for (const b of CORR_FEATURES) {
       row[b] = round(pearson(corrCols[a], corrCols[b]), 2);
     }

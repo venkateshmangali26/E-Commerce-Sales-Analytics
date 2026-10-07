@@ -123,7 +123,7 @@ async function main() {
   // Generate in chunks for memory efficiency
   const CHUNK = 250;
   for (let chunkStart = 0; chunkStart < N_TXNS; chunkStart += CHUNK) {
-    const batch = [];
+    const batch: ReturnType<typeof generateOrder>[] = [];
     for (let i = chunkStart; i < Math.min(chunkStart + CHUNK, N_TXNS); i++) {
       batch.push(generateOrder(i, rng));
     }

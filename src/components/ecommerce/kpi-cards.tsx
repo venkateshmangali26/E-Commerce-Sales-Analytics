@@ -56,7 +56,7 @@ function KpiCard({
   const isPositive = (change ?? 0) >= 0;
   return (
     <Card
-      className="group relative overflow-hidden border-border/40 bg-card/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+      className="group relative overflow-hidden border-border/40 bg-card/90 backdrop-blur-sm transition-all duration-200 hover:scale-[1.01] sm:hover:scale-[1.02] hover:-translate-y-0.5"
       style={{ boxShadow: "0 4px 20px -10px oklch(0.50 0.04 265 / 0.25)" }}
     >
       {/* Top gradient accent bar */}
@@ -69,43 +69,43 @@ function KpiCard({
         className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{ boxShadow: glow }}
       />
-      <CardHeader className="pb-2 pt-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <CardHeader className="p-2.5 sm:p-3 sm:pb-2">
+        <div className="flex items-start justify-between gap-1">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+            <CardDescription className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted-foreground truncate">
               {title}
             </CardDescription>
-            <CardTitle className="text-xl font-bold tracking-tight tabular-nums sm:text-2xl">
+            <CardTitle className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold tracking-tight tabular-nums truncate">
               {value}
             </CardTitle>
           </div>
           {/* Gradient icon tile */}
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+            className="flex h-7 w-7 xs:h-8 xs:w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl text-white shadow-sm sm:shadow-md transition-transform duration-300 group-hover:scale-105"
             style={{ background: gradient }}
           >
             {icon}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between gap-2">
+      <CardContent className="p-2.5 pt-0 sm:p-3 sm:pt-0">
+        <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 xs:gap-2">
           {showChange ? (
             <div
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+              className={`inline-flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-semibold w-fit ${
                 isPositive
                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400"
                   : "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400"
               }`}
             >
-              {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+              {isPositive ? <ArrowUpRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <ArrowDownRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
               <span className="tabular-nums">{Math.abs(change as number).toFixed(1)}%</span>
-              <span className="text-muted-foreground font-normal">{caption ?? "vs 2024"}</span>
+              <span className="hidden sm:inline text-muted-foreground font-normal">{caption ?? "vs 2024"}</span>
             </div>
           ) : (
-            <div className="text-xs text-muted-foreground">{caption}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground truncate">{caption}</div>
           )}
-          <div className="w-28">
+          <div className="w-16 xs:w-20 sm:w-28 shrink-0 self-end xs:self-auto">
             <Sparkline
               data={sparkData}
               gradientId={`spark-${title.replace(/\s/g, "-")}`}
@@ -132,7 +132,7 @@ export function KpiCards() {
   const yPrev = yearly[prevYear] || { revenue: 1, profit: 1, orders: 1 };
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
       <KpiCard
         title="Total Revenue"
         value={formatCurrency(kpis.total_sales, true)}

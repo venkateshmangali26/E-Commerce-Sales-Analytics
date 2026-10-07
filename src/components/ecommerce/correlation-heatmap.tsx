@@ -4,103 +4,152 @@ import * as React from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { correlationMatrix, correlationFeatures } from "@/lib/ecommerce-data";
 
-// coolwarm-style: -1 (blue), 0 (white/neutral), +1 (red)
-function corrColor(v: number): string {
-  // Use oklch-ish RGB interpolation between blue (59,130,246) and red (239,68,68) with neutral in middle
-  const t = (v + 1) / 2; // 0..1
-  let r: number, g: number, b: number;
-  if (t < 0.5) {
-    const k = t / 0.5;
-    // blue to neutral
-    r = Math.round(59 + (239 - 59) * k * 0.5);
-    g = Math.round(130 + (240 - 130) * k * 0.5);
-    b = Math.round(246 + (240 - 246) * k * 0.5);
+// Matplotlib/Seaborn 'coolwarm' color mapping
+// -1.00 = coral red (#f04c4c)
+//  0.00 = pale neutral/white (#f5f6fa)
+// +1.00 = royal periwinkle/blue (#5c6bc0)
+function getCoolwarmColor(val: number): string {
+  // Clamp between -1 and 1
+  const v = Math.max(-1, Math.min(1, val));
+
+  if (v >= 0) {
+    // Interpolate from neutral (#f5f6fa: 245, 246, 250) to royal blue (#5c6bc0: 92, 107, 192)
+    const t = v; // 0..1
+    const r = Math.round(245 + (92 - 245) * t);
+    const g = Math.round(246 + (107 - 246) * t);
+    const b = Math.round(250 + (220 - 250) * t);
+    return `rgb(${r}, ${g}, ${b})`;
   } else {
-    const k = (t - 0.5) / 0.5;
-    r = Math.round(149 + (239 - 149) * k);
-    g = Math.round(185 + (68 - 185) * k);
-    b = Math.round(243 + (68 - 243) * k);
+    // Interpolate from neutral (#f5f6fa: 245, 246, 250) to red (#f04c4c: 240, 76, 76)
+    const t = Math.abs(v); // 0..1
+    const r = Math.round(245 + (240 - 245) * t);
+    const g = Math.round(246 + (76 - 246) * t);
+    const b = Math.round(250 + (76 - 250) * t);
+    return `rgb(${r}, ${g}, ${b})`;
   }
-  return `rgba(${r},${g},${b},${0.18 + Math.abs(v) * 0.72})`;
 }
+
+// Determines text contrast color
+function getTextColor(val: number): string {
+  if (val >= 0.5) return "#ffffff";
+  if (val <= -0.65) return "#ffffff";
+  return "#1e293b"; // dark slate for low to moderate values
+}
+
+const COLORBAR_TICKS = [
+  "1.00",
+  "0.75",
+  "0.50",
+  "0.25",
+  "0.00",
+  "-0.25",
+  "-0.50",
+  "-0.75",
+  "-1.00",
+];
 
 export function CorrelationHeatmap() {
   const features = correlationFeatures;
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
-          Correlation Matrix
+    <Card className="border border-border/60 shadow-sm transition-all hover:shadow-md">
+      <CardHeader className="pb-2 pt-4 text-center">
+        <CardTitle className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+          Pearson Correlation Matrix
         </CardTitle>
-        <CardDescription className="text-xs">
-          Pearson correlation across numerical features — red = positive, blue = negative
-        </CardDescription>
       </CardHeader>
-      <CardContent className="pt-2">
-        <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-0.5 text-center text-[11px]">
-            <thead>
-              <tr>
-                <th className="h-8 w-28"></th>
-                {features.map((f) => (
-                  <th
-                    key={f}
-                    className="px-1 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-                    style={{
-                      writingMode: "vertical-rl",
-                      transform: "rotate(180deg)",
-                      maxWidth: 28,
-                      height: 64,
-                    }}
-                  >
-                    {f.replace(/_/g, " ")}
-                  </th>
+      <CardContent className="p-2 sm:p-6 pt-2">
+        <div className="overflow-x-auto [scrollbar-width:thin] touch-pan-x -webkit-overflow-scrolling-touch pb-6">
+          <div className="min-w-[580px] max-w-[760px] mx-auto flex items-start justify-center gap-6 sm:gap-8 pt-2">
+            {/* Heatmap Matrix Table */}
+            <div className="flex flex-col">
+              {/* Row items */}
+              <div className="flex flex-col gap-1">
+                {correlationMatrix.map((row) => (
+                  <div key={row.feature} className="flex items-center gap-1">
+                    {/* Y-axis label */}
+                    <div className="w-32 sm:w-36 pr-3 text-right text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      {row.feature}
+                    </div>
+
+                    {/* Matrix Cells */}
+                    <div className="flex gap-1">
+                      {features.map((col) => {
+                        const val = (row as any)[col] as number;
+                        const bg = getCoolwarmColor(val);
+                        const textColor = getTextColor(val);
+                        const displayVal = val.toFixed(2);
+
+                        return (
+                          <div
+                            key={col}
+                            className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xs transition-transform hover:scale-105 hover:z-10 shadow-2xs"
+                            style={{
+                              backgroundColor: bg,
+                              color: textColor,
+                            }}
+                            title={`${row.feature} × ${col}: ${displayVal}`}
+                          >
+                            <span className="text-xs sm:text-[13px] font-medium tabular-nums tracking-tight">
+                              {displayVal}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {correlationMatrix.map((row) => (
-                <tr key={row.feature}>
-                  <td className="h-9 w-28 pr-2 text-right text-[11px] font-medium text-muted-foreground">
-                    {row.feature.replace(/_/g, " ")}
-                  </td>
-                  {features.map((col) => {
-                    const v = row[col] as number;
-                    return (
-                      <td key={col} className="p-0">
-                        <div
-                          className="flex h-9 min-w-[40px] items-center justify-center rounded-md text-[10.5px] font-semibold tabular-nums transition-colors"
-                          style={{ backgroundColor: corrColor(v) }}
-                          title={`${row.feature} × ${col}: ${v.toFixed(2)}`}
-                        >
-                          {v.toFixed(2)}
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-3 flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
-          <span>-1</span>
-          <div className="flex h-2 w-32 overflow-hidden rounded-full">
-            {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+              </div>
+
+              {/* X-axis labels angled 45 degrees matching Image 5 */}
+              <div className="flex items-start pl-32 sm:pl-36 pt-2 gap-1">
+                {features.map((col) => (
+                  <div
+                    key={col}
+                    className="w-12 sm:w-14 relative h-28 flex items-start justify-start"
+                  >
+                    <div
+                      className="absolute top-2 left-3 origin-top-left text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap"
+                      style={{
+                        transform: "rotate(-45deg)",
+                      }}
+                    >
+                      {col}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Vertical Colorbar on the Right matching Image 5 */}
+            <div className="flex items-stretch gap-2.5 pt-0.5">
+              {/* Gradient Strip */}
               <div
-                key={t}
-                className="flex-1"
-                style={{ backgroundColor: corrColor(t * 2 - 1) }}
+                className="w-4 sm:w-4.5 rounded-xs shadow-inner h-[308px] sm:h-[356px]"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, #5c6bc0 0%, #a4b0e8 25%, #f5f6fa 50%, #f49898 75%, #f04c4c 100%)",
+                }}
               />
-            ))}
+
+              {/* Ticks and Labels */}
+              <div
+                className="flex flex-col justify-between text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 py-0.5 select-none h-[308px] sm:h-[356px]"
+              >
+                {COLORBAR_TICKS.map((tick) => (
+                  <div key={tick} className="flex items-center gap-1.5 leading-none">
+                    <span className="h-[1px] w-1.5 sm:w-2 bg-slate-400 dark:bg-slate-500 shrink-0" aria-hidden="true" />
+                    <span className="tabular-nums">{tick}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <span>+1</span>
         </div>
       </CardContent>
     </Card>

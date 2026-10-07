@@ -1,106 +1,246 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import {
-  ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
 } from "@/components/ui/chart";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { monthlyData, formatCurrency } from "@/lib/ecommerce-data";
+import { monthlyData, formatCurrency, formatNumber } from "@/lib/ecommerce-data";
 
 const config = {
-  revenue: { label: "Revenue", color: "var(--chart-2)" },  // emerald
-  profit: { label: "Profit", color: "var(--chart-3)" },    // orange
+  revenue: { label: "Revenue", color: "#5c6bc0" },
+  profit: { label: "Profit", color: "#00b894" },
+  orders: { label: "Orders", color: "#ec407a" },
 } satisfies ChartConfig;
 
 export function MonthlyTrendChart() {
+  // Extract 2025 data (the 12 months that produce the exact $34K, $6K, 99 in Image 1)
+  const sparklineData = React.useMemo(() => {
+    return monthlyData.filter((d) => d.year_month.startsWith("2025"));
+  }, []);
+
+  // Dynamically compute latest month metrics from dataset instead of hardcoding
+  const latestMetrics = React.useMemo(() => {
+    const latest = sparklineData[sparklineData.length - 1] ?? monthlyData[monthlyData.length - 1];
+    if (!latest) {
+      return { revenue: "$0", profit: "$0", orders: "0" };
+    }
+    return {
+      revenue: `$${Math.round(latest.revenue / 1000)}K`,
+      profit: `$${Math.round(latest.profit / 1000)}K`,
+      orders: latest.orders.toString(),
+    };
+  }, [sparklineData]);
+
   return (
-    <Card className="col-span-full border-border/40 bg-card/90 backdrop-blur-sm">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-grad-revenue flex items-center justify-center text-white shadow-md">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M3 17l6-6 4 4 8-8" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M21 7v6h-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+    <div className="space-y-4">
+      {/* 3 Mini Sparklines Strip matching Image 1 */}
+      <Card className="border border-border/60 shadow-sm p-3 sm:p-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 divide-y md:divide-y-0 md:divide-x divide-border/60">
+          {/* 1. Revenue Sparkline */}
+          <div className="flex flex-col pt-2 md:pt-0 md:px-3 first:pl-0">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Revenue
+              </span>
+              <span className="text-sm sm:text-base font-extrabold text-[#5c6bc0] tabular-nums">
+                {latestMetrics.revenue}
+              </span>
+            </div>
+            <div className="h-[75px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={sparklineData} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="sparkRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#5c6bc0" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#5c6bc0" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#5c6bc0"
+                    strokeWidth={2.5}
+                    fill="url(#sparkRev)"
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-base font-bold">Monthly Sales Trend (2023 – 2025)</CardTitle>
-            <CardDescription className="text-xs">
-              Revenue and profit evolution across all regions and categories
-            </CardDescription>
+
+          {/* 2. Profit Sparkline */}
+          <div className="flex flex-col pt-3 md:pt-0 md:px-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Profit
+              </span>
+              <span className="text-sm sm:text-base font-extrabold text-[#00b894] tabular-nums">
+                {latestMetrics.profit}
+              </span>
+            </div>
+            <div className="h-[75px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={sparklineData} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="sparkProf" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#00b894" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#00b894" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="profit"
+                    stroke="#00b894"
+                    strokeWidth={2.5}
+                    fill="url(#sparkProf)"
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* 3. Orders Sparkline */}
+          <div className="flex flex-col pt-3 md:pt-0 md:px-3 last:pr-0">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Orders
+              </span>
+              <span className="text-sm sm:text-base font-extrabold text-[#ec407a] tabular-nums">
+                {latestMetrics.orders}
+              </span>
+            </div>
+            <div className="h-[75px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={sparklineData} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="sparkOrd" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ec407a" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#ec407a" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#ec407a"
+                    strokeWidth={2.5}
+                    fill="url(#sparkOrd)"
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-2">
-        <ChartContainer config={config} className="aspect-[16/6] w-full">
-          <AreaChart data={monthlyData} margin={{ left: 4, right: 12, top: 8, bottom: 0 }}>
-            <defs>
-              {/* 🎨 Vibrant multi-stop gradients */}
-              <linearGradient id="fillRevenue2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.5} />
-                <stop offset="60%" stopColor="#06b6d4" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.02} />
-              </linearGradient>
-              <linearGradient id="fillProfit2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.45} />
-                <stop offset="60%" stopColor="#ef4444" stopOpacity={0.22} />
-                <stop offset="95%" stopColor="#ef4444" stopOpacity={0.02} />
-              </linearGradient>
-              {/* Stroke gradients */}
-              <linearGradient id="strokeRev" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#10b981" />
-                <stop offset="100%" stopColor="#06b6d4" />
-              </linearGradient>
-              <linearGradient id="strokeProfit" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#ef4444" />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.5} />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={10}
-              tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }} interval={2} />
-            <YAxis tickLine={false} axisLine={false} tickMargin={6} width={48}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-              tickFormatter={(v: number) => formatCurrency(v, true)} />
-            <ChartTooltip
-              cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
-              content={
-                <ChartTooltipContent
-                  formatter={(value, name) => (
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <span className="text-xs text-muted-foreground capitalize">{name}</span>
-                      <span className="font-semibold tabular-nums">
-                        {formatCurrency(Number(value), true)}
-                      </span>
-                    </div>
-                  )}
-                  labelFormatter={(label) => `Month: ${label}`}
-                />
-              }
-            />
-            <Area type="monotone" dataKey="revenue" stroke="url(#strokeRev)" strokeWidth={3}
-              fill="url(#fillRevenue2)" dot={false}
-              activeDot={{ r: 6, strokeWidth: 3, stroke: "var(--background)", fill: "#10b981" }} />
-            <Area type="monotone" dataKey="profit" stroke="url(#strokeProfit)" strokeWidth={2.5}
-              fill="url(#fillProfit2)" dot={false}
-              activeDot={{ r: 5, strokeWidth: 3, stroke: "var(--background)", fill: "#f59e0b" }} />
-          </AreaChart>
-        </ChartContainer>
-        {/* Legend pills */}
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)" }} />
-            <span>Revenue</span>
+      </Card>
+
+      {/* Full 3-Year Interactive Monthly Evolution */}
+      <Card className="col-span-full border border-border/60 shadow-sm">
+        <CardHeader className="pb-1 pt-4 text-center">
+          <CardTitle className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+            Monthly Sales &amp; Profit Trend (2023 – 2025)
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Revenue and profit evolution across 36 months of transaction data
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-2 sm:p-5 pt-0">
+          <ChartContainer config={config} className="h-[260px] xs:h-[290px] sm:h-[340px] md:h-[380px] w-full">
+            <AreaChart data={monthlyData} margin={{ left: 0, right: 16, top: 12, bottom: 8 }}>
+              <defs>
+                <linearGradient id="fillRev3" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#5c6bc0" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#5c6bc0" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="fillProf3" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00b894" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#00b894" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="2 2"
+                stroke="var(--border)"
+                strokeOpacity={0.45}
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={{ stroke: "var(--border)", strokeOpacity: 0.6 }}
+                tickMargin={8}
+                tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+                minTickGap={28}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={{ stroke: "var(--border)", strokeOpacity: 0.6 }}
+                tickMargin={6}
+                width={52}
+                tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+                tickFormatter={(v: number) => (v === 0 ? "$0" : `$${Math.round(v / 1000)}K`)}
+              />
+              <ChartTooltip
+                cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "2 2" }}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => (
+                      <div className="flex w-full items-center justify-between gap-4">
+                        <span className="text-xs text-muted-foreground capitalize">{name}</span>
+                        <span className="font-semibold tabular-nums text-foreground">
+                          {formatCurrency(Number(value), true)}
+                        </span>
+                      </div>
+                    )}
+                    labelFormatter={(label) => `Month: ${label}`}
+                  />
+                }
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                name="Revenue"
+                stroke="#5c6bc0"
+                strokeWidth={2.5}
+                fill="url(#fillRev3)"
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "#ffffff", fill: "#5c6bc0" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="profit"
+                name="Profit"
+                stroke="#00b894"
+                strokeWidth={2}
+                fill="url(#fillProf3)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 2, stroke: "#ffffff", fill: "#00b894" }}
+              />
+            </AreaChart>
+          </ChartContainer>
+
+          <div className="mt-3 flex items-center justify-center gap-6 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-4 rounded-xs bg-[#5c6bc0]" />
+              <span>Revenue</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-4 rounded-xs bg-[#00b894]" />
+              <span>Profit</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }} />
-            <span>Profit</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

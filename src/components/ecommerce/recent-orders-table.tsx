@@ -52,6 +52,7 @@ export function RecentOrdersTable() {
   const [query, setQuery] = React.useState("");
   const [catFilter, setCatFilter] = React.useState<string>("all");
   const [regionFilter, setRegionFilter] = React.useState<string>("all");
+  const [viewMode, setViewMode] = React.useState<"table" | "cards">("cards");
 
   const filtered = recentOrders.filter((o) => {
     const q = query.toLowerCase();
@@ -66,64 +67,122 @@ export function RecentOrdersTable() {
   });
 
   return (
-    <Card className="col-span-full">
-      <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+    <Card className="col-span-full border-border/40">
+      <CardHeader className="p-3 sm:p-5 sm:pb-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-base font-semibold">
-              Recent Orders
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Latest 25 transactions across all regions (live-sorted by date)
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm sm:text-base font-semibold">
+                Recent Orders
+              </CardTitle>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                {filtered.length}
+              </span>
+            </div>
+            <CardDescription className="text-[11px] sm:text-xs">
+              Live transaction feed across all regions &amp; customer segments
             </CardDescription>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
+
+          {/* Responsive search & filter bar */}
+          <div className="flex flex-col gap-2 xs:flex-row xs:items-center sm:gap-2">
+            <div className="relative w-full xs:w-[180px] sm:w-[220px]">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-indigo-500" />
               <Input
-                placeholder="Search by order / customer / product..."
+                placeholder="Search orders, customers..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="h-8 w-[240px] rounded-full pl-8 text-xs border-indigo-200/60 bg-gradient-to-r from-indigo-50/40 to-pink-50/40 focus-visible:ring-indigo-400"
+                className="h-8 w-full rounded-full pl-8 text-xs border-indigo-200/60 bg-gradient-to-r from-indigo-50/40 to-pink-50/40 focus-visible:ring-indigo-400"
               />
             </div>
-            <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="h-8 w-[150px] rounded-full text-xs border-border/40 bg-muted/30">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categoryList.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={regionFilter} onValueChange={setRegionFilter}>
-              <SelectTrigger className="h-8 w-[150px] rounded-full text-xs border-border/40 bg-muted/30">
-                <SelectValue placeholder="Region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                {regionList.map((r) => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-2 xs:flex xs:items-center">
+              <Select value={catFilter} onValueChange={setCatFilter}>
+                <SelectTrigger className="h-8 w-full xs:w-[125px] rounded-full text-[11px] sm:text-xs border-border/40 bg-muted/30">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categoryList.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={regionFilter} onValueChange={setRegionFilter}>
+                <SelectTrigger className="h-8 w-full xs:w-[125px] rounded-full text-[11px] sm:text-xs border-border/40 bg-muted/30">
+                  <SelectValue placeholder="Region" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  {regionList.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="max-h-[460px] overflow-y-auto rounded-md border border-border/60 [scrollbar-width:thin]">
+      <CardContent className="p-3 sm:p-5 pt-0 sm:pt-0">
+        {/* Mobile Feed View (visible on small mobile screens < md) */}
+        <div className="md:hidden space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+          {filtered.length === 0 ? (
+            <div className="py-8 text-center text-xs text-muted-foreground">
+              No orders match your filters.
+            </div>
+          ) : (
+            filtered.map((o) => (
+              <div
+                key={o.id}
+                className="rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2 transition-all hover:bg-muted/40"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-mono font-bold text-primary">{o.id}</span>
+                  <span className="text-[11px] text-muted-foreground">{o.date}</span>
+                </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground truncate">{o.customer}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{o.product}</p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={`shrink-0 text-[10px] font-medium border ${categoryVariant[o.category]}`}
+                  >
+                    {o.category}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-border/40 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-muted-foreground">{o.country} · Qty {o.quantity}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold tabular-nums text-foreground">{formatCurrency(o.total_sales)}</span>
+                    <span
+                      className={`text-[11px] font-bold tabular-nums ${
+                        o.profit < 0 ? "text-rose-600" : "text-emerald-600"
+                      }`}
+                    >
+                      {o.profit > 0 ? "+" : ""}{formatCurrency(o.profit)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Laptop & Desktop Table View (hidden on small mobile screens < md) */}
+        <div className="hidden md:block max-h-[460px] overflow-y-auto rounded-md border border-border/60 [scrollbar-width:thin]">
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-muted/40 backdrop-blur">
               <TableRow className="border-border/60 hover:bg-transparent">
                 <TableHead className="text-[11px] font-medium uppercase tracking-wider">Order ID</TableHead>
                 <TableHead className="text-[11px] font-medium uppercase tracking-wider">Date</TableHead>
                 <TableHead className="text-[11px] font-medium uppercase tracking-wider">Customer</TableHead>
-                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider md:table-cell">Product</TableHead>
-                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider lg:table-cell">Category</TableHead>
-                <TableHead className="hidden text-[11px] font-medium uppercase tracking-wider lg:table-cell">Region</TableHead>
-                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Qty</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Product</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider">Category</TableHead>
+                <TableHead className="hidden lg:table-cell text-[11px] font-medium uppercase tracking-wider">Region</TableHead>
+                <TableHead className="text-[11px] font-medium uppercase tracking-wider text-center">Qty</TableHead>
                 <TableHead className="text-right text-[11px] font-medium uppercase tracking-wider">Sales</TableHead>
                 <TableHead className="text-right text-[11px] font-medium uppercase tracking-wider">Profit</TableHead>
                 <TableHead className="text-[11px] font-medium uppercase tracking-wider">Payment</TableHead>
@@ -157,10 +216,10 @@ export function RecentOrdersTable() {
                         <span className="text-[10px] text-muted-foreground">{o.country}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-[12px] text-muted-foreground md:table-cell">
+                    <TableCell className="text-[12px] text-muted-foreground max-w-[160px] truncate">
                       {o.product}
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
+                    <TableCell>
                       <Badge
                         variant="outline"
                         className={`text-[10px] font-medium border ${categoryVariant[o.category]}`}
@@ -168,15 +227,15 @@ export function RecentOrdersTable() {
                         {o.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden text-[11px] text-muted-foreground lg:table-cell">
+                    <TableCell className="hidden lg:table-cell text-[11px] text-muted-foreground">
                       {o.region}
                     </TableCell>
-                    <TableCell className="text-[12px] tabular-nums">{o.quantity}</TableCell>
-                    <TableCell className="text-right text-[12px] font-medium tabular-nums">
+                    <TableCell className="text-[12px] tabular-nums text-center">{o.quantity}</TableCell>
+                    <TableCell className="text-right text-[12px] font-semibold tabular-nums">
                       {formatCurrency(o.total_sales)}
                     </TableCell>
                     <TableCell
-                      className={`text-right text-[12px] font-medium tabular-nums ${
+                      className={`text-right text-[12px] font-semibold tabular-nums ${
                         o.profit < 0 ? "text-rose-600" : "text-emerald-600"
                       }`}
                     >
@@ -193,8 +252,9 @@ export function RecentOrdersTable() {
             </TableBody>
           </Table>
         </div>
-        <div className="mt-2 text-right text-[10px] text-muted-foreground">
-          Showing {filtered.length} of {formatNumber(recentOrders.length)} recent orders
+        <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground">
+          <span>Showing {filtered.length} of {formatNumber(recentOrders.length)} orders</span>
+          <span className="hidden sm:inline">Real-time synchronized with SQLite</span>
         </div>
       </CardContent>
     </Card>
