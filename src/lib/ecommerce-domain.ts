@@ -4,20 +4,20 @@
  */
 
 export const REGIONS = [
-  "North America",
-  "Europe",
-  "Asia Pacific",
-  "Latin America",
-  "Middle East & Africa",
+  "South India",
+  "West India",
+  "North India",
+  "East India",
+  "Central & North East",
 ] as const;
 export type Region = (typeof REGIONS)[number];
 
 export const COUNTRIES: Record<Region, string[]> = {
-  "North America": ["United States", "Canada", "Mexico"],
-  "Europe": ["United Kingdom", "Germany", "France", "Spain", "Italy", "Netherlands"],
-  "Asia Pacific": ["China", "Japan", "India", "Australia", "Singapore", "South Korea"],
-  "Latin America": ["Brazil", "Argentina", "Chile"],
-  "Middle East & Africa": ["United Arab Emirates", "Saudi Arabia", "South Africa", "Turkey"],
+  "South India": ["Karnataka", "Tamil Nadu", "Telangana", "Kerala", "Andhra Pradesh"],
+  "West India": ["Maharashtra", "Gujarat", "Madhya Pradesh", "Goa"],
+  "North India": ["Delhi NCR", "Uttar Pradesh", "Punjab", "Haryana", "Rajasthan", "Chandigarh"],
+  "East India": ["West Bengal", "Odisha", "Bihar", "Jharkhand"],
+  "Central & North East": ["Assam", "Chhattisgarh", "Uttarakhand"],
 };
 
 export const CATEGORIES = ["Electronics", "Clothing", "Home & Kitchen", "Books"] as const;
@@ -25,52 +25,55 @@ export type Category = (typeof CATEGORIES)[number];
 
 export const PRODUCTS: Record<Category, { name: string; price: number }[]> = {
   Electronics: [
-    { name: "Aurora Wireless Earbuds Pro", price: 199.0 },
-    { name: "Pulse Fitness Tracker X", price: 159.0 },
-    { name: "Vertex Stainless Smartwatch", price: 249.0 },
-    { name: "Echo Bluetooth Speaker", price: 129.0 },
-    { name: "Lumina Smart LED Lamp", price: 89.9 },
-    { name: "Nimbus Tablet 10.4", price: 419.0 },
-    { name: "Horizon 4K Action Camera", price: 329.0 },
+    { name: "boAt Airdopes Pro True Wireless", price: 2499.0 },
+    { name: "Noise ColorFit Pulse Smartwatch", price: 3499.0 },
+    { name: "OnePlus Nord Wireless Buds", price: 2999.0 },
+    { name: "Fire-Boltt Stainless Smartwatch", price: 4999.0 },
+    { name: "Mi Smart LED Desk Lamp 1S", price: 1899.0 },
+    { name: "realme Pad Mini 8.7 Tablet", price: 11999.0 },
+    { name: "Portronics SoundDrum Bluetooth Speaker", price: 1699.0 },
   ],
   Clothing: [
-    { name: "Summit Trekking Backpack", price: 124.5 },
-    { name: "Vortex Running Shoes", price: 109.0 },
-    { name: "Coastline Linen Shirt", price: 64.0 },
-    { name: "Alpine Down Jacket", price: 289.0 },
-    { name: "Studio Yoga Leggings", price: 59.0 },
-    { name: "Heritage Denim Jacket", price: 139.0 },
+    { name: "FabIndia Handblock Cotton Kurta", price: 1899.0 },
+    { name: "Roadster Casual Denim Jacket", price: 2499.0 },
+    { name: "Wildcraft Trekking Rucksack 45L", price: 3299.0 },
+    { name: "HRX Performance Running Shoes", price: 2199.0 },
+    { name: "W for Woman Festive Anarkali Kurta", price: 2899.0 },
+    { name: "Bombay Dyeing Linen Casual Shirt", price: 1499.0 },
+    { name: "Cultsport Active Yoga Leggings", price: 1299.0 },
   ],
   "Home & Kitchen": [
-    { name: "Nimbus Memory Foam Pillow", price: 64.0 },
-    { name: "Cascade Insulated Bottle", price: 39.9 },
-    { name: "Verde Ceramic Cookware Set", price: 219.0 },
-    { name: "Lumen Aroma Diffuser", price: 49.5 },
-    { name: "Olive Wood Cutting Board", price: 34.0 },
-    { name: "Cozy Weighted Blanket", price: 119.0 },
+    { name: "Prestige Deluxe Induction Cookware Set", price: 3499.0 },
+    { name: "Milton Thermosteel Insulated Bottle", price: 899.0 },
+    { name: "Wakefit Orthopedic Memory Foam Pillow", price: 1299.0 },
+    { name: "Philips Ultrasonic Aroma Diffuser", price: 1599.0 },
+    { name: "Borosil Glass Storage Container Set", price: 1199.0 },
+    { name: "Spaces Ultra Soft Microfiber Blanket", price: 2299.0 },
   ],
   Books: [
-    { name: "Atomic Habits (Hardcover)", price: 24.0 },
-    { name: "The Pragmatic Programmer", price: 39.99 },
-    { name: "Sapiens: A Brief History", price: 22.5 },
-    { name: "Deep Work", price: 27.0 },
-    { name: "The Lean Startup", price: 26.99 },
+    { name: "Atomic Habits (Hardcover)", price: 499.0 },
+    { name: "The Psychology of Money", price: 399.0 },
+    { name: "Sapiens: A Brief History", price: 550.0 },
+    { name: "Wings of Fire: APJ Abdul Kalam", price: 350.0 },
+    { name: "The Immortals of Meluha", price: 399.0 },
+    { name: "Rich Dad Poor Dad", price: 425.0 },
+    { name: "The Lean Startup", price: 599.0 },
   ],
 };
 
 export const CUSTOMER_SEGMENTS = ["Consumer", "Corporate", "Home Office"] as const;
 export type CustomerSegment = (typeof CUSTOMER_SEGMENTS)[number];
 
-export const PAYMENT_METHODS = ["Credit Card", "PayPal", "Bank Transfer", "Debit Card"] as const;
+export const PAYMENT_METHODS = ["UPI", "Credit Card", "Net Banking", "Debit Card", "Cash on Delivery"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
-// Region → base shipping cost
+// Region → base shipping cost (in INR ₹)
 export const REGION_SHIP_BASE: Record<Region, number> = {
-  "North America": 12.5,
-  Europe: 15.8,
-  "Asia Pacific": 18.4,
-  "Latin America": 22.1,
-  "Middle East & Africa": 28.6,
+  "South India": 60,
+  "West India": 70,
+  "North India": 75,
+  "East India": 90,
+  "Central & North East": 125,
 };
 
 // Category → base margin before discount
@@ -88,21 +91,21 @@ export const SEGMENT_DISCOUNT: Record<CustomerSegment, [number, number]> = {
   "Home Office": [0, 20],
 };
 
-// Monthly demand weights — Q4 peaks (holiday season)
-export const MONTH_WEIGHTS = [0.85, 0.8, 0.9, 0.95, 1.0, 1.05, 1.05, 1.0, 1.1, 1.2, 1.45, 1.65];
+// Monthly demand weights — Indian festive peaks (Diwali, Navratri, Republic Day, Independence Day)
+export const MONTH_WEIGHTS = [1.15, 0.90, 0.95, 0.90, 1.00, 0.95, 1.05, 1.25, 1.45, 1.85, 1.60, 1.30];
 
 export const FIRST_NAMES = [
-  "Olivia", "Liam", "Sophia", "Noah", "Emma", "James", "Ava", "Lucas", "Mia", "Ethan",
-  "Isabella", "Mason", "Amelia", "Logan", "Harper", "Evelyn", "Henry", "Abigail",
-  "Jackson", "Emily", "Daniel", "Ella", "Matthew", "Scarlett", "David", "Victoria",
-  "Joseph", "Samuel", "Charlotte", "Nathan",
+  "Aarav", "Vihaan", "Vivaan", "Ananya", "Diya", "Advik", "Kabir", "Ishaan", "Sai", "Arjun",
+  "Reyansh", "Aryan", "Aditi", "Anaya", "Sanvi", "Mira", "Riya", "Priya", "Rohan", "Rahul",
+  "Vikram", "Pooja", "Sneha", "Neha", "Amit", "Rajesh", "Sunita", "Suresh", "Manoj", "Deepika",
+  "Lakshmi", "Karthik", "Venkatesh", "Harish", "Sanjay", "Anjali",
 ];
 
 export const LAST_NAMES = [
-  "Bennett", "Carter", "Nguyen", "Patel", "Rodriguez", "Mitchell", "Thompson", "Hill",
-  "Flores", "Brooks", "Reyes", "Cooper", "Lee", "Walker", "Hall", "Allen", "Young",
-  "King", "Wright", "Lopez", "Scott", "Green", "Adams", "Baker", "Nelson", "Carter",
-  "Roberts", "Turner", "Phillips", "Parker",
+  "Sharma", "Verma", "Gupta", "Patel", "Reddy", "Kumar", "Singh", "Iyer", "Nair", "Rao",
+  "Joshi", "Kulkarni", "Mehta", "Shah", "Das", "Mukherjee", "Chatterjee", "Banerjee", "Bose",
+  "Agarwal", "Mishra", "Bhat", "Pillai", "Deshmukh", "Patil", "Chawla", "Malhotra", "Kapoor",
+  "Nambiar", "Hegde",
 ];
 
 // Pick with weights: weights must be array of numbers, returns the chosen item.

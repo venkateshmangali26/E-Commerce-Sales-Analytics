@@ -24,11 +24,11 @@ import {
 import { countryData, formatCurrency, formatNumber } from "@/lib/ecommerce-data";
 
 const REGION_COLORS: Record<string, string> = {
-  "North America": "var(--chart-1)",
-  "Europe": "var(--chart-2)",
-  "Asia Pacific": "var(--chart-3)",
-  "Latin America": "var(--chart-4)",
-  "Middle East & Africa": "var(--chart-5)",
+  "South India": "#6366f1",
+  "West India": "#06b6d4",
+  "North India": "#10b981",
+  "East India": "#f59e0b",
+  "Central & North East": "#ec4899",
 };
 
 const config = {
@@ -43,10 +43,10 @@ export function CountryChart() {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold">
-          Revenue by Country
+          Revenue by State &amp; Union Territory
         </CardTitle>
         <CardDescription className="text-xs">
-          Top markets across 22 countries, colored by region
+          Top markets across 22 States &amp; UTs, colored by zone
         </CardDescription>
       </CardHeader>
       <CardContent className="p-2 sm:p-4 pt-2">

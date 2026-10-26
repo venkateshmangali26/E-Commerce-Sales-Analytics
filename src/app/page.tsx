@@ -27,20 +27,20 @@ const TAB_META: Record<
   { title: string; subtitle: string; badge: string; color: string }
 > = {
   overview: {
-    title: "Executive Overview & Global Summary",
-    subtitle: "High-level performance, KPI metrics, monthly sales trajectory, and algorithmic key insights.",
+    title: "Executive Overview & India Market Summary",
+    subtitle: "High-level performance, KPI metrics, monthly sales trajectory, and algorithmic key insights across Indian states.",
     badge: "Summary View",
     color: "from-indigo-500 to-purple-600",
   },
   sales: {
-    title: "Sales Trends & Day-of-Week Seasonality",
-    subtitle: "Deep dive into 36-month sales volume, peak weekday spikes, and quarterly revenue distribution.",
+    title: "Sales Trends & Festive Seasonality",
+    subtitle: "Deep dive into 36-month sales volume, Diwali & festive spikes, and quarterly revenue distribution.",
     badge: "Sales Analytics",
     color: "from-emerald-500 to-cyan-600",
   },
   geo: {
-    title: "Geographic Markets & Shipping Efficiency",
-    subtitle: "Regional revenue contributions, country-level sales volume, and logistics cost impact.",
+    title: "State & Regional Logistics Analytics",
+    subtitle: "Zonal revenue contributions, state-level sales volume, and regional shipping efficiency across India.",
     badge: "Geographic View",
     color: "from-cyan-500 to-blue-600",
   },
@@ -52,7 +52,7 @@ const TAB_META: Record<
   },
   customers: {
     title: "Customer Segments & Payment Behavior",
-    subtitle: "Consumer vs Corporate vs Home Office breakdown, payment preferences, and cross-category affinity.",
+    subtitle: "Consumer vs Corporate vs Home Office breakdown, UPI adoption, and payment rail distribution.",
     badge: "Customer Intelligence",
     color: "from-pink-500 to-rose-600",
   },
@@ -120,18 +120,18 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 </span>
-                Live · 2,000 transactions · 22 countries
+                Live · 2,000 transactions · 22 States &amp; UTs
               </div>
               <h1 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-                Global E-Commerce Sales Analytics
+                India E-Commerce Sales Analytics
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-white/90 max-w-2xl leading-relaxed">
-                Interactive executive dashboard · revenue, profit margins, geography, customer segments, and operations across 2023 – 2025.
+                Interactive executive dashboard · INR (₹), state distribution, UPI adoption, festive season surges, and customer segments across 2023 – 2025.
               </p>
             </div>
             <div className="flex items-center gap-2 text-[10px] sm:text-xs text-white/90 shrink-0 self-start sm:self-auto">
               <div className="rounded-lg bg-white/15 px-2.5 py-1 sm:px-3 sm:py-1.5 font-medium backdrop-blur">
-                2023 – 2025 Dataset
+                2023 – 2025 India Dataset
               </div>
             </div>
           </div>
@@ -140,33 +140,8 @@ export default function Home() {
         {/* KPI summary (always visible) */}
         <KpiCards />
 
-        {/* PROMINENT IN-PAGE TAB NAVIGATION BAR */}
+        {/* Tab Section Header & Info */}
         <div id="dashboard-tab-content" className="mt-6 scroll-mt-20">
-          <div className="rounded-2xl border border-border/70 bg-card p-1.5 sm:p-2 shadow-sm">
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] touch-pan-x -webkit-overflow-scrolling-touch py-0.5">
-              {DASHBOARD_TABS.map((t) => {
-                const active = activeTab === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    id={`inpage-tab-${t.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => switchTab(t.id)}
-                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer select-none ${
-                      active
-                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md scale-[1.02]"
-                        : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                    }`}
-                  >
-                    <span className="text-sm sm:text-base">{t.emoji}</span>
-                    <span>{t.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Active Section Info Banner */}
           <div className="mt-3.5 mb-4 rounded-xl border border-border/50 bg-muted/30 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -270,8 +245,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
           <span>
-            © {new Date().getFullYear()} CommerceIQ · Interactive sales analytics mirroring{" "}
-            <span className="font-mono">global_ecommerce_sales.csv</span>
+            © {new Date().getFullYear()} CommerceIQ India · Interactive sales analytics for the Indian e-commerce ecosystem
           </span>
           <span className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">

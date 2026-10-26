@@ -42,10 +42,11 @@ const categoryVariant: Record<string, string> = {
 };
 
 const paymentVariant: Record<string, string> = {
+  "UPI": "from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400",
   "Credit Card": "from-indigo-100 to-violet-100 text-indigo-700 dark:from-indigo-950 dark:to-violet-950 dark:text-indigo-400",
-  "PayPal": "from-blue-100 to-sky-100 text-blue-700 dark:from-blue-950 dark:to-sky-950 dark:text-blue-400",
-  "Bank Transfer": "from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400",
+  "Net Banking": "from-blue-100 to-sky-100 text-blue-700 dark:from-blue-950 dark:to-sky-950 dark:text-blue-400",
   "Debit Card": "from-amber-100 to-orange-100 text-amber-700 dark:from-amber-950 dark:to-orange-950 dark:text-amber-400",
+  "Cash on Delivery": "from-rose-100 to-pink-100 text-rose-700 dark:from-rose-950 dark:to-pink-950 dark:text-rose-400",
 };
 
 export function RecentOrdersTable() {

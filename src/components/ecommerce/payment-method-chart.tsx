@@ -24,19 +24,21 @@ import {
 import { paymentData, formatCurrency, formatNumber } from "@/lib/ecommerce-data";
 
 const PAYMENT_COLORS: Record<string, string> = {
+  "UPI": "#00b894",
   "Credit Card": "#5c6bc0",
-  "PayPal": "#ec407a",
-  "Bank Transfer": "#00b894",
+  "Net Banking": "#ec407a",
   "Debit Card": "#f39c12",
+  "Cash on Delivery": "#e17055",
 };
 
 const config: ChartConfig = {
   orders: { label: "Orders" },
   revenue: { label: "Revenue", color: "#00b4d8" },
+  UPI: { label: "UPI", color: "#00b894" },
   "Credit Card": { label: "Credit Card", color: "#5c6bc0" },
-  PayPal: { label: "PayPal", color: "#ec407a" },
-  "Bank Transfer": { label: "Bank Transfer", color: "#00b894" },
+  "Net Banking": { label: "Net Banking", color: "#ec407a" },
   "Debit Card": { label: "Debit Card", color: "#f39c12" },
+  "Cash on Delivery": { label: "Cash on Delivery", color: "#e17055" },
 };
 
 // Custom inside percentage label for the pie chart matching Image 3

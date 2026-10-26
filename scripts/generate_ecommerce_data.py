@@ -14,65 +14,68 @@ random.seed(42)
 
 # ---------- Reference catalogs (mirror notebook) ----------
 COUNTRIES = {
-    "North America": ["United States", "Canada", "Mexico"],
-    "Europe": ["United Kingdom", "Germany", "France", "Spain", "Italy", "Netherlands"],
-    "Asia Pacific": ["China", "Japan", "India", "Australia", "Singapore", "South Korea"],
-    "Latin America": ["Brazil", "Argentina", "Chile"],
-    "Middle East & Africa": ["United Arab Emirates", "Saudi Arabia", "South Africa", "Turkey"],
+    "South India": ["Karnataka", "Tamil Nadu", "Telangana", "Kerala", "Andhra Pradesh"],
+    "West India": ["Maharashtra", "Gujarat", "Madhya Pradesh", "Goa"],
+    "North India": ["Delhi NCR", "Uttar Pradesh", "Punjab", "Haryana", "Rajasthan", "Chandigarh"],
+    "East India": ["West Bengal", "Odisha", "Bihar", "Jharkhand"],
+    "Central & North East": ["Assam", "Chhattisgarh", "Uttarakhand"],
 }
 REGIONS = list(COUNTRIES.keys())
 
 PRODUCT_CATEGORIES = {
     "Electronics": [
-        ("Aurora Wireless Earbuds Pro", 199.00),
-        ("Pulse Fitness Tracker X", 159.00),
-        ("Vertex Stainless Smartwatch", 249.00),
-        ("Echo Bluetooth Speaker", 129.00),
-        ("Lumina Smart LED Lamp", 89.90),
-        ("Nimbus Tablet 10.4", 419.00),
-        ("Horizon 4K Action Camera", 329.00),
+        ("boAt Airdopes Pro True Wireless", 2499.00),
+        ("Noise ColorFit Pulse Smartwatch", 3499.00),
+        ("OnePlus Nord Wireless Buds", 2999.00),
+        ("Fire-Boltt Stainless Smartwatch", 4999.00),
+        ("Mi Smart LED Desk Lamp 1S", 1899.00),
+        ("realme Pad Mini 8.7 Tablet", 11999.00),
+        ("Portronics SoundDrum Bluetooth Speaker", 1699.00),
     ],
     "Clothing": [
-        ("Summit Trekking Backpack", 124.50),
-        ("Vortex Running Shoes", 109.00),
-        ("Coastline Linen Shirt", 64.00),
-        ("Alpine Down Jacket", 289.00),
-        ("Studio Yoga Leggings", 59.00),
-        ("Heritage Denim Jacket", 139.00),
+        ("FabIndia Handblock Cotton Kurta", 1899.00),
+        ("Roadster Casual Denim Jacket", 2499.00),
+        ("Wildcraft Trekking Rucksack 45L", 3299.00),
+        ("HRX Performance Running Shoes", 2199.00),
+        ("W for Woman Festive Anarkali Kurta", 2899.00),
+        ("Bombay Dyeing Linen Casual Shirt", 1499.00),
+        ("Cultsport Active Yoga Leggings", 1299.00),
     ],
     "Home & Kitchen": [
-        ("Nimbus Memory Foam Pillow", 64.00),
-        ("Cascade Insulated Bottle", 39.90),
-        ("Verde Ceramic Cookware Set", 219.00),
-        ("Lumen Aroma Diffuser", 49.50),
-        ("Olive Wood Cutting Board", 34.00),
-        ("Cozy Weighted Blanket", 119.00),
+        ("Prestige Deluxe Induction Cookware Set", 3499.00),
+        ("Milton Thermosteel Insulated Bottle", 899.00),
+        ("Wakefit Orthopedic Memory Foam Pillow", 1299.00),
+        ("Philips Ultrasonic Aroma Diffuser", 1599.00),
+        ("Borosil Glass Storage Container Set", 1199.00),
+        ("Spaces Ultra Soft Microfiber Blanket", 2299.00),
     ],
     "Books": [
-        ("Atomic Habits (Hardcover)", 24.00),
-        ("The Pragmatic Programmer", 39.99),
-        ("Sapiens: A Brief History", 22.50),
-        ("Deep Work", 27.00),
-        ("The Lean Startup", 26.99),
+        ("Atomic Habits (Hardcover)", 499.00),
+        ("The Psychology of Money", 399.00),
+        ("Sapiens: A Brief History", 550.00),
+        ("Wings of Fire: APJ Abdul Kalam", 350.00),
+        ("The Immortals of Meluha", 399.00),
+        ("Rich Dad Poor Dad", 425.00),
+        ("The Lean Startup", 599.00),
     ],
 }
 CATEGORIES = list(PRODUCT_CATEGORIES.keys())
 
 CUSTOMER_SEGMENTS = ["Consumer", "Corporate", "Home Office"]
 
-PAYMENT_METHODS = ["Credit Card", "PayPal", "Bank Transfer", "Debit Card"]
+PAYMENT_METHODS = ["UPI", "Credit Card", "Net Banking", "Debit Card", "Cash on Delivery"]
 
 FIRST_NAMES = [
-    "Olivia", "Liam", "Sophia", "Noah", "Emma", "James", "Ava", "Lucas",
-    "Mia", "Ethan", "Isabella", "Mason", "Amelia", "Logan", "Harper",
-    "Lucas", "Evelyn", "Henry", "Abigail", "Jackson", "Emily", "Daniel",
-    "Ella", "Matthew", "Scarlett", "David", "Victoria", "Joseph",
+    "Aarav", "Vihaan", "Vivaan", "Ananya", "Diya", "Advik", "Kabir", "Ishaan", "Sai", "Arjun",
+    "Reyansh", "Aryan", "Aditi", "Anaya", "Sanvi", "Mira", "Riya", "Priya", "Rohan", "Rahul",
+    "Vikram", "Pooja", "Sneha", "Neha", "Amit", "Rajesh", "Sunita", "Suresh", "Manoj", "Deepika",
+    "Lakshmi", "Karthik", "Venkatesh", "Harish", "Sanjay", "Anjali",
 ]
 LAST_NAMES = [
-    "Bennett", "Carter", "Nguyen", "Patel", "Rodriguez", "Mitchell",
-    "Thompson", "Hill", "Flores", "Brooks", "Reyes", "Cooper", "Lee",
-    "Walker", "Hall", "Allen", "Young", "King", "Wright", "Lopez",
-    "Hill", "Scott", "Green", "Adams", "Baker", "Nelson", "Carter",
+    "Sharma", "Verma", "Gupta", "Patel", "Reddy", "Kumar", "Singh", "Iyer", "Nair", "Rao",
+    "Joshi", "Kulkarni", "Mehta", "Shah", "Das", "Mukherjee", "Chatterjee", "Banerjee", "Bose",
+    "Agarwal", "Mishra", "Bhat", "Pillai", "Deshmukh", "Patil", "Chawla", "Malhotra", "Kapoor",
+    "Nambiar", "Hegde",
 ]
 
 
@@ -86,17 +89,16 @@ END = date(2025, 12, 31)
 DAYS_RANGE = (END - START).days
 N_TXNS = 2000
 
-# Seasonality multipliers (month -> demand weight), Q4 peaks
-MONTH_WEIGHTS = [0.85, 0.80, 0.90, 0.95, 1.00, 1.05,
-                 1.05, 1.00, 1.10, 1.20, 1.45, 1.65]
+# Seasonality multipliers (month -> demand weight), Festive peaks in India (Navratri, Diwali, Republic Day)
+MONTH_WEIGHTS = [1.15, 0.90, 0.95, 0.90, 1.00, 0.95, 1.05, 1.25, 1.45, 1.85, 1.60, 1.30]
 
-# Region -> base shipping cost
+# Region -> base shipping cost (in INR ₹)
 REGION_SHIP_BASE = {
-    "North America": 12.50,
-    "Europe": 15.80,
-    "Asia Pacific": 18.40,
-    "Latin America": 22.10,
-    "Middle East & Africa": 28.60,
+    "South India": 60.00,
+    "West India": 70.00,
+    "North India": 75.00,
+    "East India": 90.00,
+    "Central & North East": 125.00,
 }
 
 # Category -> base margin before discount
@@ -598,20 +600,36 @@ ts_parts.append("export const segmentList = " + json.dumps(CUSTOMER_SEGMENTS, in
 ts_parts.append("")
 ts_parts.append("export const regionList = " + json.dumps(REGIONS, indent=2) + ";")
 ts_parts.append("")
-ts_parts.append("// Formatters")
-ts_parts.append("export const formatCurrency = (value: number, compact = false) =>")
-ts_parts.append("  new Intl.NumberFormat('en-US', {")
+ts_parts.append("// Formatters for Indian Rupee (₹) and Indian Numbering System")
+ts_parts.append("export const formatCurrency = (value: number, compact = false) => {")
+ts_parts.append("  if (compact) {")
+ts_parts.append("    const abs = Math.abs(value);")
+ts_parts.append("    const sign = value < 0 ? '-' : '';")
+ts_parts.append("    if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;")
+ts_parts.append("    if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(1)} L`;")
+ts_parts.append("    if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(1)} K`;")
+ts_parts.append("    return `${sign}₹${abs.toFixed(0)}`;")
+ts_parts.append("  }")
+ts_parts.append("  return new Intl.NumberFormat('en-IN', {")
 ts_parts.append("    style: 'currency',")
-ts_parts.append("    currency: 'USD',")
-ts_parts.append("    notation: compact ? 'compact' : 'standard',")
-ts_parts.append("    maximumFractionDigits: compact ? 1 : 0,")
+ts_parts.append("    currency: 'INR',")
+ts_parts.append("    maximumFractionDigits: 0,")
 ts_parts.append("  }).format(value);")
+ts_parts.append("};")
 ts_parts.append("")
-ts_parts.append("export const formatNumber = (value: number, compact = false) =>")
-ts_parts.append("  new Intl.NumberFormat('en-US', {")
-ts_parts.append("    notation: compact ? 'compact' : 'standard',")
+ts_parts.append("export const formatNumber = (value: number, compact = false) => {")
+ts_parts.append("  if (compact) {")
+ts_parts.append("    const abs = Math.abs(value);")
+ts_parts.append("    const sign = value < 0 ? '-' : '';")
+ts_parts.append("    if (abs >= 10000000) return `${sign}${(abs / 10000000).toFixed(2)} Cr`;")
+ts_parts.append("    if (abs >= 100000) return `${sign}${(abs / 100000).toFixed(1)} L`;")
+ts_parts.append("    if (abs >= 1000) return `${sign}${(abs / 1000).toFixed(1)} K`;")
+ts_parts.append("    return `${sign}${abs.toFixed(0)}`;")
+ts_parts.append("  }")
+ts_parts.append("  return new Intl.NumberFormat('en-IN', {")
 ts_parts.append("    maximumFractionDigits: 1,")
 ts_parts.append("  }).format(value);")
+ts_parts.append("};")
 ts_parts.append("")
 ts_parts.append("export const calcChange = (current: number, previous: number) => {")
 ts_parts.append("  if (previous === 0) return 0;")
@@ -619,9 +637,11 @@ ts_parts.append("  return ((current - previous) / previous) * 100;")
 ts_parts.append("};")
 ts_parts.append("")
 
-OUT_PATH = "/home/z/my-project/src/lib/ecommerce-data.ts"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUT_PATH = os.path.join(PROJECT_ROOT, "src", "lib", "ecommerce-data.ts")
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-with open(OUT_PATH, "w") as f:
+with open(OUT_PATH, "w", encoding="utf-8") as f:
     f.write("\n".join(ts_parts))
 
 print(f"Wrote {OUT_PATH} ({os.path.getsize(OUT_PATH):,} bytes)")

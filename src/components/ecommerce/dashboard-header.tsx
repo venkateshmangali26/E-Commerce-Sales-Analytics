@@ -20,7 +20,7 @@ import {
 export const DASHBOARD_TABS = [
   { id: "overview", label: "Overview", emoji: "📊", desc: "Executive Summary & KPIs" },
   { id: "sales", label: "Sales", emoji: "💰", desc: "Monthly & Day-of-Week Trends" },
-  { id: "geo", label: "Geographic", emoji: "🌍", desc: "Regions & Global Markets" },
+  { id: "geo", label: "Geographic", emoji: "🗺️", desc: "States & Regional Logistics" },
   { id: "products", label: "Products", emoji: "🛍️", desc: "Top 10 SKUs & Category Share" },
   { id: "customers", label: "Customers", emoji: "👥", desc: "Segments & Payment Methods" },
   { id: "operations", label: "Operations", emoji: "⚙️", desc: "Correlation Matrix & Discounts" },
@@ -85,7 +85,7 @@ export function DashboardHeader({
                 CommerceIQ
               </span>
               <span className="hidden text-[10px] sm:text-[11px] text-muted-foreground font-medium xs:inline-block">
-                Sales Analytics
+                India Sales Analytics
               </span>
             </div>
           </button>
@@ -184,14 +184,14 @@ export function DashboardHeader({
                     className="text-[10px] sm:text-xs font-bold text-white"
                     style={{ background: "linear-gradient(135deg, #6366f1, #ec4899)" }}
                   >
-                    AK
+                    RS
                   </AvatarFallback>
                 </Avatar>
                 <ChevronDown className="h-3 w-3 text-muted-foreground sm:block" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Alex K. (Analyst)</DropdownMenuLabel>
+              <DropdownMenuLabel>Rahul S. (India Analyst)</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile Settings</DropdownMenuItem>
               <DropdownMenuItem>Dataset Info (2,000 txns)</DropdownMenuItem>

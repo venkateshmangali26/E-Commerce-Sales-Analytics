@@ -141,19 +141,35 @@ export const kpis = {
   newCustomersPrev: 2120,
 };
 
-export const formatCurrency = (value: number, compact = false) =>
-  new Intl.NumberFormat("en-US", {
+export const formatCurrency = (value: number, compact = false) => {
+  if (compact) {
+    const abs = Math.abs(value);
+    const sign = value < 0 ? "-" : "";
+    if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
+    if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(1)} L`;
+    if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(1)} K`;
+    return `${sign}₹${abs.toFixed(0)}`;
+  }
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
-    notation: compact ? "compact" : "standard",
-    maximumFractionDigits: compact ? 1 : 0,
+    currency: "INR",
+    maximumFractionDigits: 0,
   }).format(value);
+};
 
-export const formatNumber = (value: number, compact = false) =>
-  new Intl.NumberFormat("en-US", {
-    notation: compact ? "compact" : "standard",
+export const formatNumber = (value: number, compact = false) => {
+  if (compact) {
+    const abs = Math.abs(value);
+    const sign = value < 0 ? "-" : "";
+    if (abs >= 10000000) return `${sign}${(abs / 10000000).toFixed(2)} Cr`;
+    if (abs >= 100000) return `${sign}${(abs / 100000).toFixed(1)} L`;
+    if (abs >= 1000) return `${sign}${(abs / 1000).toFixed(1)} K`;
+    return `${sign}${abs.toFixed(0)}`;
+  }
+  return new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: 1,
   }).format(value);
+};
 
 export const calcChange = (current: number, previous: number) => {
   if (previous === 0) return 0;

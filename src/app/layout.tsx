@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sales Analytics Dashboard | CommerceIQ",
-  description: "Real-time e-commerce sales analytics dashboard with revenue trends, product performance, and regional insights.",
-  keywords: ["e-commerce", "analytics", "sales", "dashboard", "revenue", "CommerceIQ"],
+  title: "India E-Commerce Sales Analytics | CommerceIQ",
+  description: "Real-time India e-commerce sales analytics dashboard featuring INR (₹) GMV, state distribution, UPI adoption trends, and festive seasonality across 2023–2025.",
+  keywords: ["e-commerce", "analytics", "sales", "dashboard", "revenue", "CommerceIQ", "India", "UPI"],
   authors: [{ name: "CommerceIQ" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",

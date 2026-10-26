@@ -67,6 +67,7 @@ export type AnalyticsPayload = {
     category: string;
     revenue: number;
     profit: number;
+    share: number;
     orders: number;
     units: number;
     avg_price: number;
@@ -85,6 +86,7 @@ export type AnalyticsPayload = {
     segment: string;
     revenue: number;
     profit: number;
+    share: number;
     orders: number;
     avg_order_value: number;
     avg_discount: number;
@@ -128,6 +130,7 @@ export type AnalyticsPayload = {
   dow: {
     day: string;
     orders: number;
+    revenue: number;
     avg_revenue: number;
   }[];
 };
@@ -345,6 +348,7 @@ export function computeAnalytics(orders: Order[]): AnalyticsPayload {
       category: k,
       revenue: fcur(v.revenue),
       profit: fcur(v.profit),
+      share: totalSales > 0 ? round((v.revenue / totalSales) * 100, 1) : 0,
       orders: v.orders,
       units: v.units,
       avg_price: fcur(v.priceSum / v.priceCount),
@@ -400,6 +404,7 @@ export function computeAnalytics(orders: Order[]): AnalyticsPayload {
       segment: k,
       revenue: fcur(v.revenue),
       profit: fcur(v.profit),
+      share: totalSales > 0 ? round((v.revenue / totalSales) * 100, 1) : 0,
       orders: v.orders,
       avg_order_value: fcur(v.revenue / v.orders),
       avg_discount: round(v.discSum / v.discCount, 2),
@@ -520,6 +525,7 @@ export function computeAnalytics(orders: Order[]): AnalyticsPayload {
     return {
       day: d,
       orders: e.orders,
+      revenue: fcur(e.revenue),
       avg_revenue: e.orders > 0 ? fcur(e.revenue / e.orders) : 0,
     };
   });

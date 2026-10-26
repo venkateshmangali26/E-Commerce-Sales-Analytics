@@ -52,7 +52,7 @@ function generateOrder(i: number, rng: () => number) {
   const orderDate = new Date(year, month - 1, day);
 
   // Region & country
-  const region = weightedPick(REGIONS as unknown as Region[], [34, 28, 22, 9, 7]);
+  const region = weightedPick(REGIONS as unknown as Region[], [34, 30, 24, 8, 4]);
   const country = pick(COUNTRIES[region], rng);
 
   // Category & product
@@ -71,7 +71,7 @@ function generateOrder(i: number, rng: () => number) {
 
   // Discount
   let [dLo, dHi] = SEGMENT_DISCOUNT[segment];
-  if (unitPrice > 200) dLo += 2;
+  if (unitPrice > 2000) dLo += 2;
   const discountPercent = rng() > 0.15
     ? Math.round(rand(rng, dLo, dHi) * 10) / 10
     : 0;
@@ -81,10 +81,10 @@ function generateOrder(i: number, rng: () => number) {
   const totalSales = Math.round((gross - discountAmount) * 100) / 100;
 
   const baseMargin = CATEGORY_MARGIN[category];
-  const shippingCost = Math.round((REGION_SHIP_BASE[region] + rand(rng, -3, 5)) * 100) / 100;
+  const shippingCost = Math.round((REGION_SHIP_BASE[region] + rand(rng, -10, 15)) * 100) / 100;
   const profit = Math.round((baseMargin * gross - discountAmount - shippingCost) * 100) / 100;
 
-  const payment = weightedPick(PAYMENT_METHODS as unknown as string[], [55, 25, 12, 8]);
+  const payment = weightedPick(PAYMENT_METHODS as unknown as string[], [54, 22, 12, 7, 5]);
   const customer = `${pick(FIRST_NAMES, rng)} ${pick(LAST_NAMES, rng)}`;
 
   const yearIdx = YEARS.indexOf(year);
@@ -110,12 +110,8 @@ function generateOrder(i: number, rng: () => number) {
 }
 
 async function main() {
-  console.log("Checking existing orders...");
-  const existing = await db.order.count();
-  if (existing > 0) {
-    console.log(`Database already has ${existing} orders. Skipping seed.`);
-    return;
-  }
+  console.log("Refreshing database with Indian e-commerce orders...");
+  await db.order.deleteMany({});
 
   console.log(`Seeding ${N_TXNS} synthetic orders...`);
   const rng = makeRng(42); // deterministic
